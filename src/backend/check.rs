@@ -1,6 +1,6 @@
 extern crate serde_json;
 
-use std::io::{Result, Error, ErrorKind, Write};
+use std::io::{Result, Error, ErrorKind};
 
 pub fn dep(config: String) -> Result<String> {
     let config_json: serde_json::Value;
@@ -37,23 +37,30 @@ pub fn dep(config: String) -> Result<String> {
         }
     }
 
-    pkg_check(config_json)
+    config_check(config_json)
 }
 
 #[cfg(target_os="linux")]
-fn pkg_check(config: serde_json::Value) -> Result<String> {
+fn config_check(config: serde_json::Value) -> Result<String> {
     match config["deps"]["linux"] {
         json!(null) => return Ok(String::from("No dependencies found!")),
         ref deps => {
             if !deps.is_object() {
                 return Err(Error::new(ErrorKind::InvalidData, "beheer.json: 'deps->linux' should be an object."));
             }
+
             for dep in deps.as_object().unwrap().iter() {
+
                 if !dep.1.is_string() {
                     return Err(Error::new(ErrorKind::InvalidData, "beheer.json: all deps should be strings!"));
                 }
+
                 println!("Checking for {}..\n\t{}", dep.0, dep.1);
-                super::fetch::fetch(dep.0.to_string(), String::from(dep.1.as_str().unwrap()));
+
+                match dir_check(dep.0.to_string(), String::from(dep.1.as_str().unwrap())) {
+                    Ok(_) => {},
+                    Err(e) => return Err(e)
+                }
             }
         }
     }
@@ -61,18 +68,25 @@ fn pkg_check(config: serde_json::Value) -> Result<String> {
 }
 
 #[cfg(target_os="macos")]
-fn pkg_check(config: serde_json::Value) -> Result<String> {
+fn config_check(config: serde_json::Value) -> Result<String> {
     match config["deps"]["os-x"] {
         json!(null) => return Ok(String::from("No dependencies found!")),
         ref sys_deps => {
             if !sys_deps.is_object() {
                 return Err(Error::new(ErrorKind::InvalidData, "beheer.json: 'deps->os-x' should be an object."));
             }
-            for dep in sys_deps.as_object().unwrap().iter() {
+
+            for dep in deps.as_object().unwrap().iter() {
+
                 if !dep.1.is_string() {
                     return Err(Error::new(ErrorKind::InvalidData, "beheer.json: all deps should be strings!"));
                 }
-                println!("Checking for {} version {}..", dep.0, dep.1);
+
+                println!("Checking for {}..\n\t{}", dep.0, dep.1);
+
+                if dir_check(dep.0.to_string(), String::from(dep.1.as_str().unwrap())) == Err(e) {
+                    return Err(e);
+                }
             }
         }
     }
@@ -80,20 +94,42 @@ fn pkg_check(config: serde_json::Value) -> Result<String> {
 }
 
 #[cfg(target_os="windows")]
-fn pkg_check(config: serde_json::Value) -> Result<String> {
+fn config_check(config: serde_json::Value) -> Result<String> {
     match config["deps"]["windows"] {
         json!(null) => return Ok(String::from("No dependencies found!")),
         ref sys_deps => {
             if !sys_deps.is_object() {
                 return Err(Error::new(ErrorKind::InvalidData, "beheer.json: 'deps->windows' should be an object."));
             }
-            for dep in sys_deps.as_object().unwrap().iter() {
+
+            for dep in deps.as_object().unwrap().iter() {
                 if !dep.1.is_string() {
                     return Err(Error::new(ErrorKind::InvalidData, "beheer.json: all deps should be strings!"));
                 }
-                println!("Checking for {} version {}..", dep.0, dep.1);
+
+                println!("Checking for {}..\n\t{}", dep.0, dep.1);
+
+                if dir_check(dep.0.to_string(), String::from(dep.1.as_str().unwrap())) == Err(e) {
+                    return Err(e);
+                }
             }
         }
     }
     Ok(String::from("Dependencies OK!"))
+}
+
+fn dir_check(dependency: String, command: String) -> Result<()> {
+    let dir = super::filesystem::get_dep_dir();
+
+    match dir {
+        Ok(mut dep_dir) => {
+            dep_dir.push(dependency);
+            if !dep_dir.is_dir() {
+                dep_dir.pop();
+                super::fetch::fetch(dep_dir, command);
+            }
+            Ok(())
+        },
+        Err(e) => Err(e)
+    }
 }

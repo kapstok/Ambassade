@@ -1,4 +1,5 @@
-use std::{path, env};
+use std::{path, env, fs};
+use std::io::{Result, Error, ErrorKind};
 
 fn get_root (mut path: path::PathBuf) -> Option<path::PathBuf> {
     loop {
@@ -34,5 +35,22 @@ pub fn get_project_root() -> Option<path::PathBuf> {
             },
             None => return path
         }
+    }
+}
+
+pub fn get_dep_dir() -> Result<path::PathBuf> {
+    match get_project_root() {
+        Some(mut path) => {
+            path.push("dep");
+            if !path.is_dir() {
+                println!("No dep folder found. Creating folder..");
+                match fs::create_dir(path.clone()) {
+                    Ok(_) => println!("Created dir {}.", path.clone().to_str().unwrap()),
+                    Err(e) => return Err(e)
+                }
+            }
+            Ok(path)
+        },
+        None => Err(Error::new(ErrorKind::NotFound, "No project file found. Aborted."))
     }
 }
