@@ -43,9 +43,9 @@ pub fn get_dep_dir() -> Result<path::PathBuf> {
         Some(mut path) => {
             path.push("dep");
             if !path.is_dir() {
-                println!("No dep folder found. Creating folder..");
+                println!("\tNo dep folder found. Creating folder..");
                 match fs::create_dir(path.clone()) {
-                    Ok(_) => println!("Created dir {}.", path.clone().to_str().unwrap()),
+                    Ok(_) => println!("\tCreated dir {}.", path.clone().to_str().unwrap()),
                     Err(e) => return Err(e)
                 }
             }

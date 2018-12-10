@@ -32,6 +32,12 @@ fn parse() {
                     Err(e) => println!("Build failed: {}", e)
                 }
             }
+            else if &argument == "run" {
+                match backend::project::run(&mut argv) {
+                    Ok(_) => {},
+                    Err(e) => println!("Running project failed: {}", e)
+                }
+            }
         },
         None => backend::project::help()
     }

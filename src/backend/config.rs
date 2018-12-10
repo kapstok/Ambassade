@@ -1,10 +1,11 @@
 extern crate serde_json;
 
-use std::io::{Result, Error, ErrorKind, Write, Read};
+use std::io::{Error, ErrorKind, Write, Read};
 use std::fs::File;
 use std::path::PathBuf;
+use std::result::Result;
 
-pub fn create(mut path: PathBuf) -> Result<()> {
+pub fn create(mut path: PathBuf) -> Result<(), Error> {
     let content = json!({
         "project-name": path.file_name().unwrap().to_str().unwrap(),
         "version": 0.1,
@@ -37,17 +38,24 @@ pub fn create(mut path: PathBuf) -> Result<()> {
     Ok(())
 }
 
-pub fn read(mut path: PathBuf) -> Result<String> {
+fn read(mut path: PathBuf) -> Result<String, String> {
     let mut config = String::new();
 
     path.push("beheer.json");
 
     match File::open(path.to_str().unwrap()) {
         Ok(mut file) => {
-            file.read_to_string(&mut config)?;
+            file.read_to_string(&mut config).unwrap();
         },
-        Err(e) => return Err(e)
+        Err(e) => return Err(e.to_string())
     }
 
     Ok(config)
+}
+
+pub fn get_json(path: PathBuf) -> Result<serde_json::Value, String> {
+    match read(path) {
+        Ok(config) => super::check::json(config),
+        Err(e) => Err(e.to_string())
+    }
 }

@@ -1,5 +1,6 @@
 use std::env;
-use std::io::{Result, Error, ErrorKind};
+use std::result::Result;
+use std::process::{Command, Stdio};
 
 pub fn init(args: &mut env::Args) {
     let mut directory = env::current_dir().unwrap();
@@ -14,15 +15,67 @@ pub fn init(args: &mut env::Args) {
     }
 }
 
-pub fn build() -> Result<String> {
+pub fn build() -> Result<String, String> {
     match super::filesystem::get_project_root() {
-        Some(dir) => {
-            match super::config::read(dir) {
-                Ok(configfile) => return super::build::build(configfile),
-                Err(e) => Err(e)
+        Some(dir) => super::build::build(dir),
+        None => Err(String::from("not in a project (sub)directory."))
+    }
+}
+
+pub fn run(args: &mut env::Args) -> Result<String, String> {
+    let output_dir;
+    let mut args = String::new();
+
+    println!("Building project..");
+
+    match build() {
+        Ok(output) => println!("{}", output),
+        Err(e) => return Err(e)
+    }
+
+    match super::filesystem::get_project_root() {
+        Some(dir) => output_dir = dir,
+        None => return Err(String::from("not in a project (sub)directory."))
+    }
+
+    match super::config::get_json(output_dir) {
+        Ok(config) => {
+            if cfg!(target_os = "linux") {
+                match config["run"]["linux"].as_str() {
+                    Some(string) => args = String::from(string),
+                    None => return Err(String::from("beheer.json: 'run->linux' should be a string."))
+                }
+            }
+            if cfg!(target_os = "macos") {
+                match config["run"]["os-x"].as_str() {
+                    Some(string) => args = String::from(string),
+                    None => return Err(String::from("beheer.json: 'run->os-x' should be a string."))
+                }
+            }
+            if cfg!(target_os = "windows") {
+                match config["run"]["windows"].as_str() {
+                    Some(string) => args = String::from(string),
+                    None => return Err(String::from("beheer.json: 'run->windows' should be a string."))
+                }
             }
         },
-        None => Err(Error::new(ErrorKind::NotFound, "not in a project (sub)directory."))
+        Err(e) => return Err(e)
+    }
+
+    println!("Running project..");
+
+    let mut arguments: Vec<&str> = args.split(' ').collect();
+    let command = arguments.remove(0);
+    let out = Command::new(command)
+        .args(arguments)
+        .stdin(Stdio::inherit())
+        .stdout(Stdio::inherit())
+        .output()
+        .expect("");
+
+    match out.status.success() {
+        true => Ok(String::from_utf8_lossy(&out.stdout).to_string()),
+        false => Err(String::from_utf8_lossy(&out.stderr).to_string())
     }
 }
 

@@ -1,11 +1,11 @@
 extern crate serde_json;
 
-use std::io::{Result, Error, ErrorKind};
+use std::result::Result;
 
-pub fn dep(config: String) -> Result<String> {
+pub fn json(config: String) -> Result<serde_json::Value, String> {
     let config_json: serde_json::Value;
 
-    println!("Checking dependencies..");
+    println!("Reading module configuration..");
 
     match serde_json::from_str(&config) {
         Ok(json) => config_json = json,
@@ -19,40 +19,42 @@ pub fn dep(config: String) -> Result<String> {
             match e.classify() {
                 serde_json::error::Category::Io => {
                     error.push_str("Weird error....");
-                    return Err(Error::new(ErrorKind::Other, error));
+                    return Err(error);
                 },
                 serde_json::error::Category::Syntax => {
                     error.push_str("Syntax error in 'beheer.json'");
-                    return Err(Error::new(ErrorKind::InvalidInput, error));
+                    return Err(error);
                 },
                 serde_json::error::Category::Data => {
                     error.push_str("Semantic error in 'beheer.json'");
-                    return Err(Error::new(ErrorKind::InvalidData, error));
+                    return Err(error);
                 },
                 serde_json::error::Category::Eof => {
                     error.push_str("Unexpected end-of-file in 'beheer.json'");
-                    return Err(Error::new(ErrorKind::UnexpectedEof, error));
+                    return Err(error);
                 }
             }
         }
     }
 
-    config_check(config_json)
+    Ok(config_json)
 }
 
 #[cfg(target_os="linux")]
-fn config_check(config: serde_json::Value) -> Result<String> {
+pub fn dep(config: serde_json::Value) -> Result<String, String> {
+    println!("Checking dependencies..");
+
     match config["deps"]["linux"] {
         json!(null) => return Ok(String::from("No dependencies found!")),
         ref deps => {
             if !deps.is_object() {
-                return Err(Error::new(ErrorKind::InvalidData, "beheer.json: 'deps->linux' should be an object."));
+                return Err(String::from("beheer.json: 'deps->linux' should be an object."));
             }
 
             for dep in deps.as_object().unwrap().iter() {
 
                 if !dep.1.is_string() {
-                    return Err(Error::new(ErrorKind::InvalidData, "beheer.json: all deps should be strings!"));
+                    return Err(String::from("beheer.json: all deps should be strings!"));
                 }
 
                 println!("Checking for {}..\n\t{}", dep.0, dep.1);
@@ -68,18 +70,20 @@ fn config_check(config: serde_json::Value) -> Result<String> {
 }
 
 #[cfg(target_os="macos")]
-fn config_check(config: serde_json::Value) -> Result<String> {
+pub fn dep(config: serde_json::Value) -> Result<String, String> {
+    println!("Checking dependencies..");
+
     match config["deps"]["os-x"] {
         json!(null) => return Ok(String::from("No dependencies found!")),
         ref sys_deps => {
             if !sys_deps.is_object() {
-                return Err(Error::new(ErrorKind::InvalidData, "beheer.json: 'deps->os-x' should be an object."));
+                return Err(String::from("beheer.json: 'deps->os-x' should be an object."));
             }
 
             for dep in deps.as_object().unwrap().iter() {
 
                 if !dep.1.is_string() {
-                    return Err(Error::new(ErrorKind::InvalidData, "beheer.json: all deps should be strings!"));
+                    return Err(String::from("beheer.json: all deps should be strings!"));
                 }
 
                 println!("Checking for {}..\n\t{}", dep.0, dep.1);
@@ -94,23 +98,26 @@ fn config_check(config: serde_json::Value) -> Result<String> {
 }
 
 #[cfg(target_os="windows")]
-fn config_check(config: serde_json::Value) -> Result<String> {
+pub fn dep(config: serde_json::Value) -> Result<String, String> {
+    println!("Checking dependencies..");
+
     match config["deps"]["windows"] {
         json!(null) => return Ok(String::from("No dependencies found!")),
         ref sys_deps => {
             if !sys_deps.is_object() {
-                return Err(Error::new(ErrorKind::InvalidData, "beheer.json: 'deps->windows' should be an object."));
+                return Err(String::from("beheer.json: 'deps->windows' should be an object."));
             }
 
             for dep in deps.as_object().unwrap().iter() {
                 if !dep.1.is_string() {
-                    return Err(Error::new(ErrorKind::InvalidData, "beheer.json: all deps should be strings!"));
+                    return Err(String::from("beheer.json: all deps should be strings!"));
                 }
 
                 println!("Checking for {}..\n\t{}", dep.0, dep.1);
 
-                if dir_check(dep.0.to_string(), String::from(dep.1.as_str().unwrap())) == Err(e) {
-                    return Err(e);
+                match dir_check(dep.0.to_string(), String::from(dep.1.as_str().unwrap())) {
+                    Ok(output) => println!("{}", output),
+                    Err(e) => return Err(e)
                 }
             }
         }
@@ -118,18 +125,18 @@ fn config_check(config: serde_json::Value) -> Result<String> {
     Ok(String::from("Dependencies OK!"))
 }
 
-fn dir_check(dependency: String, command: String) -> Result<()> {
+fn dir_check(dependency: String, command: String) -> Result<String, String> {
     let dir = super::filesystem::get_dep_dir();
 
     match dir {
         Ok(mut dep_dir) => {
             dep_dir.push(dependency);
-            if !dep_dir.is_dir() {
+            if !dep_dir.exists() {
                 dep_dir.pop();
-                super::fetch::fetch(dep_dir, command);
+                return super::fetch::fetch(dep_dir, command);
             }
-            Ok(())
+            Ok(String::from("Dependency found."))
         },
-        Err(e) => Err(e)
+        Err(e) => Err(e.to_string())
     }
 }
