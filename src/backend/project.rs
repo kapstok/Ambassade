@@ -22,16 +22,9 @@ pub fn build() -> Result<String, String> {
     }
 }
 
-pub fn run(args: &mut env::Args) -> Result<String, String> {
+pub fn exe(args: &mut env::Args) -> Result<String, String> {
     let output_dir;
     let mut args = String::new();
-
-    println!("Building project..");
-
-    match build() {
-        Ok(output) => println!("{}", output),
-        Err(e) => return Err(e)
-    }
 
     match super::filesystem::get_project_root() {
         Some(dir) => output_dir = dir,
@@ -79,6 +72,17 @@ pub fn run(args: &mut env::Args) -> Result<String, String> {
     }
 }
 
+pub fn run(args: &mut env::Args) -> Result<String, String> {
+    println!("Building project..");
+
+    match build() {
+        Ok(output) => println!("{}", output),
+        Err(e) => return Err(e)
+    }
+
+    exe(args)
+}
+
 pub fn help() {
     println!("Syntax:");
     println!("$ beheer [FLAG] [COMMAND [ARGUMENTS]]");
@@ -90,5 +94,5 @@ pub fn help() {
     println!("init [DIRECTORY]\tInitialize new project in specified directory. Defaults to current directory.");
     println!("build\t\t\tBuild current project.");
     println!("run [ARGUMENTS]\t\tBuild and run current project with ARGUMENTS to run project with.");
-    println!("exe\t\t\tRun current project without building.", );
+    println!("exe [ARGUMENTS]\t\tRun current project with ARGUMENTS. The project won't be built.");
 }

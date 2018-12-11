@@ -38,6 +38,12 @@ fn parse() {
                     Err(e) => println!("Running project failed: {}", e)
                 }
             }
+            else if &argument == "exe" {
+                match backend::project::exe(&mut argv) {
+                    Ok(_) => {},
+                    Err(e) => println!("Running project failed: {}", e)
+                }
+            }
         },
         None => backend::project::help()
     }
