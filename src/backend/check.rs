@@ -126,7 +126,7 @@ pub fn dep(config: serde_json::Value) -> Result<String, String> {
 }
 
 fn dir_check(dependency: String, command: String) -> Result<String, String> {
-    let dir = super::filesystem::get_dep_dir();
+    let dir = super::filesystem::get_dep_root();
 
     match dir {
         Ok(mut dep_dir) => {

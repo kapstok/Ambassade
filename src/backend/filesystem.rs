@@ -38,7 +38,7 @@ pub fn get_project_root() -> Option<path::PathBuf> {
     }
 }
 
-pub fn get_dep_dir() -> Result<path::PathBuf> {
+pub fn get_dep_root() -> Result<path::PathBuf> {
     match get_project_root() {
         Some(mut path) => {
             path.push("dep");

@@ -38,6 +38,20 @@ pub fn create(mut path: PathBuf) -> Result<(), Error> {
     Ok(())
 }
 
+pub fn update(mut path: PathBuf, value: serde_json::Value) -> Result<(), String> {
+    path.push("beheer.json");
+
+    match File::create(path) {
+        Ok(mut file) => {
+            match file.write_all(serde_json::to_string_pretty(&value).unwrap().as_bytes()) {
+                Ok(_) => Ok(()),
+                Err(e) => Err(e.to_string())
+            }
+        },
+        Err(e) => Err(e.to_string())
+    }
+}
+
 fn read(mut path: PathBuf) -> Result<String, String> {
     let mut config = String::new();
 

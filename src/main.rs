@@ -44,6 +44,12 @@ fn parse() {
                     Err(e) => println!("Running project failed: {}", e)
                 }
             }
+            else if &argument == "add" {
+                match backend::add::add(&mut argv) {
+                    Ok(msg) => println!("{}", msg),
+                    Err(e) => println!("Could not add dependency: {}", e)
+                }
+            }
         },
         None => backend::project::help()
     }

@@ -91,8 +91,9 @@ pub fn help() {
     println!("--help -h\t\tShow this message");
     println!("");
 
-    println!("init [DIRECTORY]\tInitialize new project in specified directory. Defaults to current directory.");
-    println!("build\t\t\tBuild current project.");
-    println!("run [ARGUMENTS]\t\tBuild and run current project with ARGUMENTS to run project with.");
-    println!("exe [ARGUMENTS]\t\tRun current project with ARGUMENTS. The project won't be built.");
+    println!("init [DIRECTORY]\t\tInitialize new project in specified directory. Defaults to current directory.");
+    println!("build\t\t\t\tBuild current project.");
+    println!("run [ARGUMENTS]\t\t\tBuild and run current project with ARGUMENTS to run project with.");
+    println!("exe [ARGUMENTS]\t\t\tRun current project with ARGUMENTS. The project won't be built.");
+    println!("add NAME COMMAND [ARGUMENTS]\tAdd dependency with NAME to module and is built through COMMAND with ARGUMENTS.");
 }
