@@ -69,7 +69,7 @@ fn read(mut path: PathBuf) -> Result<String, String> {
 
 pub fn get_json(path: PathBuf) -> Result<serde_json::Value, String> {
     match read(path) {
-        Ok(config) => super::check::json(config),
+        Ok(config) => super::dep::json(config),
         Err(e) => Err(e.to_string())
     }
 }

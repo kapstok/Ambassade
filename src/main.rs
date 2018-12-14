@@ -50,6 +50,12 @@ fn parse() {
                     Err(e) => println!("Could not add dependency: {}", e)
                 }
             }
+            else if &argument == "dep-tree" {
+                match backend::project::dep_tree(&mut argv) {
+                    Ok(tree) => println!("{}", tree),
+                    Err(e) => println!("Could not deduce dependency tree: {}", e)
+                }
+            }
         },
         None => backend::project::help()
     }

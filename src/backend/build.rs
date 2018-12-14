@@ -12,7 +12,7 @@ pub fn build(config_file: PathBuf) -> Result<String, String> {
         Err(e) => return Err(e)
     }
 
-    match super::check::dep(config.clone()) {
+    match super::dep::check(config.clone()) {
         Ok(result) => println!("{}", result),
         Err(e) => return Err(e)
     }

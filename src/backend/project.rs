@@ -1,6 +1,7 @@
 use std::env;
 use std::result::Result;
 use std::process::{Command, Stdio};
+use super::deptree;
 
 pub fn init(args: &mut env::Args) {
     let mut directory = env::current_dir().unwrap();
@@ -83,6 +84,11 @@ pub fn run(args: &mut env::Args) -> Result<String, String> {
     exe(args)
 }
 
+// Args need to be processed..
+pub fn dep_tree(args: &mut env::Args) -> Result<deptree::Node, String> {
+    deptree::print(super::dep::OS::all)
+}
+
 pub fn help() {
     println!("Syntax:");
     println!("$ beheer [FLAG] [COMMAND [ARGUMENTS]]");
@@ -91,9 +97,10 @@ pub fn help() {
     println!("--help -h\t\tShow this message");
     println!("");
 
-    println!("init [DIRECTORY]\t\tInitialize new project in specified directory. Defaults to current directory.");
-    println!("build\t\t\t\tBuild current project.");
-    println!("run [ARGUMENTS]\t\t\tBuild and run current project with ARGUMENTS to run project with.");
-    println!("exe [ARGUMENTS]\t\t\tRun current project with ARGUMENTS. The project won't be built.");
-    println!("add NAME COMMAND [ARGUMENTS]\tAdd dependency with NAME to module and is built through COMMAND with ARGUMENTS.");
+    println!("init [DIRECTORY]\t\t  Initialize new project in specified directory. Defaults to current directory.");
+    println!("build\t\t\t\t  Build current project.");
+    println!("run [ARGUMENTS]\t\t\t  Build and run current project with ARGUMENTS to run project with.");
+    println!("exe [ARGUMENTS]\t\t\t  Run current project with ARGUMENTS. The project won't be built.");
+    println!("add NAME COMMAND [ARGUMENTS]\t  Add dependency with NAME to module and is built through COMMAND with ARGUMENTS.");
+    println!("dep-tree [all|linux|os-x|windows] Print a tree of all dependencies used (indirectly) by a project for specified OS. Defaults to 'all'.");
 }
