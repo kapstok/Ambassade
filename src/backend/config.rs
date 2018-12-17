@@ -7,7 +7,6 @@ use std::result::Result;
 
 pub fn create(mut path: PathBuf) -> Result<(), Error> {
     let content = json!({
-        "project-name": path.file_name().unwrap().to_str().unwrap(),
         "version": 0.1,
         "build": {
             "windows": "echo \"No build config set.\"",

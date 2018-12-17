@@ -1,50 +1,78 @@
 extern crate serde_json;
 
-use super::dep as backend;
+use super::system::OS;
 use std::result::Result;
-use std::option::Option;
 use std::path::PathBuf;
-use std::rc::Rc;
 use std::fmt;
 
 pub struct Node {
     dep_name: String,
     path: PathBuf,
-    depends_on: Option<Rc<Node>>
+    depends_on: Vec<Node>
 }
 
-// Incomplete
 impl fmt::Display for Node {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        try!(write!(f, "Incomplete"));
+        let mut dependency = self.clone();
+        let mut string = String::from(self.dep_name.clone());
+
+        string.push('\n');
+
+        for node in &dependency.depends_on {
+            let node = node.to_string();
+
+            for line in node.lines() {
+                let mut line = String::from(line);
+
+                line.insert(0, '\t');
+
+                string.push_str(line.as_str());
+                string.push('\n');
+            }
+        }
+
+        dependency = self.clone();
+
+        try!(write!(f, "{}", string));
         Ok(())
     }
 }
 
-pub fn print(os: backend::OS) -> Result<Node, String> {
+pub fn print(os: &OS, path: PathBuf) -> Result<Node, String> {
     let mut deps: Vec<String> = Vec::new();
-    let path: PathBuf;
+    let mut nodes: Vec<Node> = Vec::new();
 
-    match super::filesystem::get_module_root() {
-        Some(p) => path = p,
-        None => return Err(String::from("Not in a project/dependency directory."))
-    }
-
-    let deps_json = match super::config::get_json(path) {
+    let deps_json = match super::config::get_json(path.clone()) {
         Ok(config) => config,
         Err(e) => return Err(e)
     };
 
-    match backend::dep(deps_json, os) {
-        Ok(vector) => vector.iter().for_each(|tuple| deps.push(tuple.0.clone())),
+    match super::dep::dep(deps_json, os) {
+        Ok(vector) => vector.iter().for_each(|dep| deps.push(dep.0.clone())),
         Err(e) => return Err(e)
     }
 
-    // Incomplete
+    for dependency in deps {
+        let node: Node;
+
+        match super::filesystem::get_dep_root() {
+            Ok(mut dir) => {
+                dir.push(dependency);
+                match print(&os, dir) {
+                    Ok(dep) => node = dep,
+                    Err(e) => return Err(e.to_string())
+                }
+            },
+            Err(e) => return Err(e.to_string())
+        };
+
+        nodes.push(node);
+    }
+
     let root = Node {
-        dep_name: String::from("root"),
+        dep_name: String::from(path.file_name().unwrap().to_str().unwrap()),
         path: super::filesystem::get_module_root().unwrap(),
-        depends_on: None
+        depends_on: nodes
     };
 
     Ok(root)

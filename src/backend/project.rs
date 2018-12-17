@@ -84,9 +84,20 @@ pub fn run(args: &mut env::Args) -> Result<String, String> {
     exe(args)
 }
 
-// Args need to be processed..
 pub fn dep_tree(args: &mut env::Args) -> Result<deptree::Node, String> {
-    deptree::print(super::dep::OS::all)
+    let path = match super::filesystem::get_module_root() {
+        Some(p) => p,
+        None => return Err(String::from("Not in a project/dependency directory."))
+    };
+
+    match args.next() {
+        Some(ref os) if os.as_str() == "linux" => deptree::print(&super::system::OS::linux, path),
+        Some(ref os) if os.as_str() == "os-x" => deptree::print(&super::system::OS::macos, path),
+        Some(ref os) if os.as_str() == "windows" => deptree::print(&super::system::OS::windows, path),
+        Some(ref os) if os.as_str() == "all" => deptree::print(&super::system::OS::all, path),
+        Some(_) => Err(String::from("dep-tree: OS not found. Possible inputs: 'all', 'linux', 'os-x', 'windows'")),
+        None => deptree::print(&super::system::OS::current(), path)
+    }
 }
 
 pub fn help() {

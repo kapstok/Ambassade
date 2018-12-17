@@ -1,13 +1,7 @@
 extern crate serde_json;
 
 use std::result::Result;
-
-pub enum OS {
-    all,
-    linux,
-    macos,
-    windows
-}
+use super::system::OS;
 
 pub fn json(config: String) -> Result<serde_json::Value, String> {
     let config_json: serde_json::Value;
@@ -47,26 +41,26 @@ pub fn json(config: String) -> Result<serde_json::Value, String> {
     Ok(config_json)
 }
 
-pub fn dep(config: serde_json::Value, os: OS) -> Result<Vec<(String, String)>, String> {
+pub fn dep(config: serde_json::Value, os: &OS) -> Result<Vec<(String, String)>, String> {
     let mut output: Vec<(String, String)> = Vec::new();
 
     match os {
         OS::all => {
-            match dep(config.clone(), OS::linux) {
+            match dep(config.clone(), &OS::linux) {
                 Ok(mut result) => {
                     let mut r: Vec<(String,String)> = result;
                     output.append(&mut r)
                 },
                 Err(e) => return Err(e)
             }
-            match dep(config.clone(), OS::macos) {
+            match dep(config.clone(), &OS::macos) {
                 Ok(mut result) => {
                     let mut r: Vec<(String,String)> = result;
                     output.append(&mut r)
                 },
                 Err(e) => return Err(e)
             }
-            match dep(config.clone(), OS::windows) {
+            match dep(config.clone(), &OS::windows) {
                 Ok(mut result) => {
                     let mut r: Vec<(String,String)> = result;
                     output.append(&mut r)
@@ -130,7 +124,7 @@ pub fn dep(config: serde_json::Value, os: OS) -> Result<Vec<(String, String)>, S
 pub fn check(config: serde_json::Value) -> Result<String, String> {
     println!("Checking dependencies..");
 
-    match dep(config, OS::linux) {
+    match dep(config, &OS::linux) {
         Ok(ref deps) if deps.is_empty() => return Ok(String::from("No dependencies found!")),
         Ok(ref deps) => {
             for dep in deps.iter() {
@@ -153,7 +147,7 @@ pub fn check(config: serde_json::Value) -> Result<String, String> {
 pub fn check(config: serde_json::Value) -> Result<String, String> {
     println!("Checking dependencies..");
 
-    match dep(config, OS::macos) {
+    match dep(config, &OS::macos) {
         Ok(ref deps) if deps.is_empty() => return Ok(String::from("No dependencies found!")),
         Ok(ref deps) => {
             for dep in deps.iter() {
@@ -176,7 +170,7 @@ pub fn check(config: serde_json::Value) -> Result<String, String> {
 pub fn check(config: serde_json::Value) -> Result<String, String> {
     println!("Checking dependencies..");
 
-    match dep(config, OS::windows) {
+    match dep(config, &OS::windows) {
         Ok(ref deps) if deps.is_empty() => return Ok(String::from("No dependencies found!")),
         Ok(ref deps) => {
             for dep in deps.iter() {
