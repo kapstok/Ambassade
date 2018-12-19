@@ -25,9 +25,37 @@ pub fn build(config_file: PathBuf) -> Result<String, String> {
     Ok(String::from("Build succeeded!"))
 }
 
+pub fn build_rec(config_file: PathBuf) -> Result<String, String> {
+    let dep_tree = super::deptree::print(&super::system::OS::current(), config_file);
+
+    // Inconventient, should be changed later
+    match &dep_tree {
+        Ok(result) => println!("{}", result),
+        Err(e) => return Err(e.to_string())
+    }
+
+    let dep_tree = dep_tree.unwrap();
+
+    for node in &dep_tree.depends_on {
+        println!("Building module '{}'..", &node.dep_name);
+        match build_rec(node.path.clone()) {
+            Ok(_) => {},
+            Err(e) => return Err(e)
+        }
+    }
+
+    println!("Building current project '{}'..", &dep_tree.dep_name);
+    match build(dep_tree.path) {
+        Ok(result) => println!("{}", result),
+        Err(e) => return Err(e)
+    }
+
+    Ok(String::from("Project built!"))
+}
+
 #[cfg(target_os="linux")]
 fn build_module(config: serde_json::Value) -> Result<String, String> {
-    println!("Building project..");
+    println!("Building module..");
 
     let build_cmd = &config["build"]["linux"];
 
@@ -40,7 +68,7 @@ fn build_module(config: serde_json::Value) -> Result<String, String> {
 
 #[cfg(target_os="macos")]
 fn build_module(config: serde_json::Value) -> Result<String, String> {
-    println!("Building project..");
+    println!("Building module..");
 
     let build_cmd = &config["build"]["os-x"];
 
@@ -53,7 +81,7 @@ fn build_module(config: serde_json::Value) -> Result<String, String> {
 
 #[cfg(target_os="windows")]
 fn build_module(config: serde_json::Value) -> Result<String, String> {
-    println!("Building project..");
+    println!("Building module..");
 
     let build_cmd = &config["build"]["windows"];
 

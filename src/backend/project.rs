@@ -16,10 +16,20 @@ pub fn init(args: &mut env::Args) {
     }
 }
 
-pub fn build() -> Result<String, String> {
-    match super::filesystem::get_project_root() {
-        Some(dir) => super::build::build(dir),
-        None => Err(String::from("not in a project (sub)directory."))
+pub fn build(args: &mut env::Args) -> Result<String, String> {
+    match args.next() {
+        Some(ref module) if module.as_str() == "--module" => {
+            match super::filesystem::get_module_root() {
+                Some(dir) => super::build::build(dir),
+                None => Err(String::from("not in a project (sub)directory."))
+            }
+        },
+        Some(_) | None => {
+            match super::filesystem::get_project_root() {
+                Some(dir) => super::build::build_rec(dir),
+                None => Err(String::from("not in a project (sub)directory."))
+            }
+        }
     }
 }
 
@@ -76,7 +86,7 @@ pub fn exe(args: &mut env::Args) -> Result<String, String> {
 pub fn run(args: &mut env::Args) -> Result<String, String> {
     println!("Building project..");
 
-    match build() {
+    match build(args) {
         Ok(output) => println!("{}", output),
         Err(e) => return Err(e)
     }
@@ -109,7 +119,7 @@ pub fn help() {
     println!("");
 
     println!("init [DIRECTORY]\t\t  Initialize new project in specified directory. Defaults to current directory.");
-    println!("build\t\t\t\t  Build current project.");
+    println!("build [--module]\t\t  Build current project if module flag is not specified, otherwise only the module will be built.");
     println!("run [ARGUMENTS]\t\t\t  Build and run current project with ARGUMENTS to run project with.");
     println!("exe [ARGUMENTS]\t\t\t  Run current project with ARGUMENTS. The project won't be built.");
     println!("add NAME COMMAND [ARGUMENTS]\t  Add dependency with NAME to module and is built through COMMAND with ARGUMENTS.");

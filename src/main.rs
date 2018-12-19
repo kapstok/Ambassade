@@ -27,7 +27,7 @@ fn parse() {
                 backend::project::init(&mut argv);
             }
             else if &argument == "build" {
-                match backend::project::build() {
+                match backend::project::build(&mut argv) {
                     Ok(result) => println!("{}", result),
                     Err(e) => println!("Build failed: {}", e)
                 }

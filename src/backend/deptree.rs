@@ -6,9 +6,9 @@ use std::path::PathBuf;
 use std::fmt;
 
 pub struct Node {
-    dep_name: String,
-    path: PathBuf,
-    depends_on: Vec<Node>
+    pub dep_name: String,
+    pub path: PathBuf,
+    pub depends_on: Vec<Node>
 }
 
 impl fmt::Display for Node {
@@ -30,8 +30,6 @@ impl fmt::Display for Node {
                 string.push('\n');
             }
         }
-
-        dependency = self.clone();
 
         try!(write!(f, "{}", string));
         Ok(())
@@ -71,7 +69,7 @@ pub fn print(os: &OS, path: PathBuf) -> Result<Node, String> {
 
     let root = Node {
         dep_name: String::from(path.file_name().unwrap().to_str().unwrap()),
-        path: super::filesystem::get_module_root().unwrap(),
+        path: path,
         depends_on: nodes
     };
 

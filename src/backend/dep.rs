@@ -6,8 +6,6 @@ use super::system::OS;
 pub fn json(config: String) -> Result<serde_json::Value, String> {
     let config_json: serde_json::Value;
 
-    println!("Reading module configuration..");
-
     match serde_json::from_str(&config) {
         Ok(json) => config_json = json,
         Err(e) => {
