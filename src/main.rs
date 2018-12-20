@@ -5,7 +5,7 @@ mod backend;
 use std::env;
 
 fn main() {
-    match backend::filesystem::get_project_root() {
+    match backend::filesystem::get_current_project_root() {
         Some(_) => println!("You are in a project."),
         None => println!("You are not in a project.")
     }
@@ -48,6 +48,12 @@ fn parse() {
                 match backend::add::add(&mut argv) {
                     Ok(msg) => println!("{}", msg),
                     Err(e) => println!("Could not add dependency: {}", e)
+                }
+            }
+            else if &argument == "delete" {
+                match backend::project::delete(&mut argv) {
+                    Ok(module) => println!("Module '{}' deleted.", module),
+                    Err(e) => println!("Deleting module failed: {}", e)
                 }
             }
             else if &argument == "dep-tree" {

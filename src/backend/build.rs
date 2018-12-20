@@ -37,14 +37,14 @@ pub fn build_rec(config_file: PathBuf) -> Result<String, String> {
     let dep_tree = dep_tree.unwrap();
 
     for node in &dep_tree.depends_on {
-        println!("Building module '{}'..", &node.dep_name);
+        println!("Building module '{}'..", &node.name);
         match build_rec(node.path.clone()) {
             Ok(_) => {},
             Err(e) => return Err(e)
         }
     }
 
-    println!("Building current project '{}'..", &dep_tree.dep_name);
+    println!("Building current project '{}'..", &dep_tree.name);
     match build(dep_tree.path) {
         Ok(result) => println!("{}", result),
         Err(e) => return Err(e)

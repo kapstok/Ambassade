@@ -19,13 +19,13 @@ pub fn init(args: &mut env::Args) {
 pub fn build(args: &mut env::Args) -> Result<String, String> {
     match args.next() {
         Some(ref module) if module.as_str() == "--module" => {
-            match super::filesystem::get_module_root() {
+            match super::filesystem::get_current_module_root() {
                 Some(dir) => super::build::build(dir),
                 None => Err(String::from("not in a project (sub)directory."))
             }
         },
         Some(_) | None => {
-            match super::filesystem::get_project_root() {
+            match super::filesystem::get_current_project_root() {
                 Some(dir) => super::build::build_rec(dir),
                 None => Err(String::from("not in a project (sub)directory."))
             }
@@ -37,7 +37,7 @@ pub fn exe(args: &mut env::Args) -> Result<String, String> {
     let output_dir;
     let mut args = String::new();
 
-    match super::filesystem::get_project_root() {
+    match super::filesystem::get_current_project_root() {
         Some(dir) => output_dir = dir,
         None => return Err(String::from("not in a project (sub)directory."))
     }
@@ -94,17 +94,32 @@ pub fn run(args: &mut env::Args) -> Result<String, String> {
     exe(args)
 }
 
+pub fn delete(path: &mut env::Args) -> Result<String, String> {
+    let path = match path.next() {
+        Some(arg) => arg,
+        None => return Err(String::from("Missing path as argument."))
+    };
+
+    match env::current_dir() {
+        Ok(mut dir) => {
+            dir.push(path);
+            super::delete::delete(dir)
+        },
+        Err(e) => Err(e.to_string())
+    }
+}
+
 pub fn dep_tree(args: &mut env::Args) -> Result<deptree::Node, String> {
-    let path = match super::filesystem::get_module_root() {
+    let path = match super::filesystem::get_current_module_root() {
         Some(p) => p,
         None => return Err(String::from("Not in a project/dependency directory."))
     };
 
     match args.next() {
-        Some(ref os) if os.as_str() == "linux" => deptree::print(&super::system::OS::linux, path),
-        Some(ref os) if os.as_str() == "os-x" => deptree::print(&super::system::OS::macos, path),
-        Some(ref os) if os.as_str() == "windows" => deptree::print(&super::system::OS::windows, path),
-        Some(ref os) if os.as_str() == "all" => deptree::print(&super::system::OS::all, path),
+        Some(ref os) if os.as_str() == "linux" => deptree::print(&super::system::OS::Linux, path),
+        Some(ref os) if os.as_str() == "os-x" => deptree::print(&super::system::OS::MacOs, path),
+        Some(ref os) if os.as_str() == "windows" => deptree::print(&super::system::OS::Windows, path),
+        Some(ref os) if os.as_str() == "all" => deptree::print(&super::system::OS::All, path),
         Some(_) => Err(String::from("dep-tree: OS not found. Possible inputs: 'all', 'linux', 'os-x', 'windows'")),
         None => deptree::print(&super::system::OS::current(), path)
     }
@@ -123,5 +138,6 @@ pub fn help() {
     println!("run [ARGUMENTS]\t\t\t  Build and run current project with ARGUMENTS to run project with.");
     println!("exe [ARGUMENTS]\t\t\t  Run current project with ARGUMENTS. The project won't be built.");
     println!("add NAME COMMAND [ARGUMENTS]\t  Add dependency with NAME to module and is built through COMMAND with ARGUMENTS.");
+    println!("delete PATH\t\t\t Delete a dependency in PATH.");
     println!("dep-tree [all|linux|os-x|windows] Print a tree of all dependencies used (indirectly) by a project for specified OS. Defaults to 'all'.");
 }

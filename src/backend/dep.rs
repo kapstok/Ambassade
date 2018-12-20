@@ -43,22 +43,22 @@ pub fn dep(config: serde_json::Value, os: &OS) -> Result<Vec<(String, String)>, 
     let mut output: Vec<(String, String)> = Vec::new();
 
     match os {
-        OS::all => {
-            match dep(config.clone(), &OS::linux) {
+        OS::All => {
+            match dep(config.clone(), &OS::Linux) {
                 Ok(mut result) => {
                     let mut r: Vec<(String,String)> = result;
                     output.append(&mut r)
                 },
                 Err(e) => return Err(e)
             }
-            match dep(config.clone(), &OS::macos) {
+            match dep(config.clone(), &OS::MacOs) {
                 Ok(mut result) => {
                     let mut r: Vec<(String,String)> = result;
                     output.append(&mut r)
                 },
                 Err(e) => return Err(e)
             }
-            match dep(config.clone(), &OS::windows) {
+            match dep(config.clone(), &OS::Windows) {
                 Ok(mut result) => {
                     let mut r: Vec<(String,String)> = result;
                     output.append(&mut r)
@@ -66,7 +66,7 @@ pub fn dep(config: serde_json::Value, os: &OS) -> Result<Vec<(String, String)>, 
                 Err(e) => return Err(e)
             }
         },
-        OS::linux => match config["deps"]["linux"] {
+        OS::Linux => match config["deps"]["linux"] {
             json!(null) => return Ok(output),
             ref deps => {
                 match deps.as_object() {
@@ -82,7 +82,7 @@ pub fn dep(config: serde_json::Value, os: &OS) -> Result<Vec<(String, String)>, 
                 }
             }
         },
-        OS::macos => match config["deps"]["os-x"] {
+        OS::MacOs => match config["deps"]["os-x"] {
             json!(null) => return Ok(output),
             ref deps => {
                 match deps.as_object() {
@@ -98,7 +98,7 @@ pub fn dep(config: serde_json::Value, os: &OS) -> Result<Vec<(String, String)>, 
                 }
             }
         },
-        OS::windows => match config["deps"]["windows"] {
+        OS::Windows => match config["deps"]["windows"] {
             json!(null) => return Ok(output),
             ref deps => {
                 match deps.as_object() {
@@ -122,7 +122,7 @@ pub fn dep(config: serde_json::Value, os: &OS) -> Result<Vec<(String, String)>, 
 pub fn check(config: serde_json::Value) -> Result<String, String> {
     println!("Checking dependencies..");
 
-    match dep(config, &OS::linux) {
+    match dep(config, &OS::Linux) {
         Ok(ref deps) if deps.is_empty() => return Ok(String::from("No dependencies found!")),
         Ok(ref deps) => {
             for dep in deps.iter() {
@@ -145,7 +145,7 @@ pub fn check(config: serde_json::Value) -> Result<String, String> {
 pub fn check(config: serde_json::Value) -> Result<String, String> {
     println!("Checking dependencies..");
 
-    match dep(config, &OS::macos) {
+    match dep(config, &OS::MacOs) {
         Ok(ref deps) if deps.is_empty() => return Ok(String::from("No dependencies found!")),
         Ok(ref deps) => {
             for dep in deps.iter() {
@@ -168,7 +168,7 @@ pub fn check(config: serde_json::Value) -> Result<String, String> {
 pub fn check(config: serde_json::Value) -> Result<String, String> {
     println!("Checking dependencies..");
 
-    match dep(config, &OS::windows) {
+    match dep(config, &OS::Windows) {
         Ok(ref deps) if deps.is_empty() => return Ok(String::from("No dependencies found!")),
         Ok(ref deps) => {
             for dep in deps.iter() {
@@ -188,7 +188,7 @@ pub fn check(config: serde_json::Value) -> Result<String, String> {
 }
 
 fn dir_check(dependency: String, command: String) -> Result<String, String> {
-    let dir = super::filesystem::get_dep_root();
+    let dir = super::filesystem::get_current_dep_root();
 
     match dir {
         Ok(mut dep_dir) => {

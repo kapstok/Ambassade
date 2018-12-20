@@ -16,12 +16,20 @@ fn get_root (mut path: path::PathBuf) -> Option<path::PathBuf> {
     }
 }
 
-pub fn get_module_root() -> Option<path::PathBuf> {
-    get_root(env::current_dir().unwrap())
+pub fn get_current_module_root() -> Option<path::PathBuf> {
+    get_module_root(env::current_dir().unwrap())
 }
 
-pub fn get_project_root() -> Option<path::PathBuf> {
-    let mut path = get_root(env::current_dir().unwrap());
+pub fn get_module_root(from_dir: path::PathBuf) -> Option<path::PathBuf> {
+    get_root(from_dir)
+}
+
+pub fn get_current_project_root() -> Option<path::PathBuf> {
+    get_project_root(env::current_dir().unwrap())
+}
+
+pub fn get_project_root(from_dir: path::PathBuf) -> Option<path::PathBuf> {
+    let mut path = get_root(from_dir);
     let mut parentdir = path.clone();
 
     loop {
@@ -38,8 +46,12 @@ pub fn get_project_root() -> Option<path::PathBuf> {
     }
 }
 
-pub fn get_dep_root() -> Result<path::PathBuf> {
-    match get_project_root() {
+pub fn get_current_dep_root() -> Result<path::PathBuf> {
+    get_dep_root(env::current_dir().unwrap())
+}
+
+pub fn get_dep_root(from_dir: path::PathBuf) -> Result<path::PathBuf> {
+    match get_project_root(from_dir) {
         Some(mut path) => {
             path.push("dep");
             if !path.is_dir() {

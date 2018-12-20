@@ -3,18 +3,21 @@ extern crate serde_json;
 use super::system::OS;
 use std::result::Result;
 use std::path::PathBuf;
+use std::cmp::PartialEq;
+use std::clone::Clone;
 use std::fmt;
 
+#[derive(Clone)]
 pub struct Node {
-    pub dep_name: String,
+    pub name: String,
     pub path: PathBuf,
     pub depends_on: Vec<Node>
 }
 
 impl fmt::Display for Node {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut dependency = self.clone();
-        let mut string = String::from(self.dep_name.clone());
+        let dependency = self.clone();
+        let mut string = String::from(self.name.clone());
 
         string.push('\n');
 
@@ -36,6 +39,12 @@ impl fmt::Display for Node {
     }
 }
 
+impl PartialEq for Node {
+    fn eq(&self, other: &Node) -> bool {
+        self.name == other.name
+    }
+}
+
 pub fn print(os: &OS, path: PathBuf) -> Result<Node, String> {
     let mut deps: Vec<String> = Vec::new();
     let mut nodes: Vec<Node> = Vec::new();
@@ -53,7 +62,7 @@ pub fn print(os: &OS, path: PathBuf) -> Result<Node, String> {
     for dependency in deps {
         let node: Node;
 
-        match super::filesystem::get_dep_root() {
+        match super::filesystem::get_current_dep_root() {
             Ok(mut dir) => {
                 dir.push(dependency);
                 match print(&os, dir) {
@@ -68,10 +77,34 @@ pub fn print(os: &OS, path: PathBuf) -> Result<Node, String> {
     }
 
     let root = Node {
-        dep_name: String::from(path.file_name().unwrap().to_str().unwrap()),
+        name: String::from(path.file_name().unwrap().to_str().unwrap()),
         path: path,
         depends_on: nodes
     };
 
     Ok(root)
+}
+
+pub fn dependency_of(os: &OS, dependency: &Node) -> Result<Vec<Node>, String> {
+    match super::filesystem::get_project_root(dependency.path.clone()) {
+        Some(path) => dependency_of_rec(os, dependency, path),
+        None => Err(String::from("dependency_of: could not find project root."))
+    }
+}
+
+fn dependency_of_rec(os: &OS, dependency: &Node, root: PathBuf) -> Result<Vec<Node>, String> {
+    let mut nodes: Vec<Node> = Vec::new();
+
+    match print(os, root) {
+        Ok(tree) => {
+            for node in &tree.depends_on {
+                if node == dependency {
+                    nodes.push(tree.clone());
+                }
+                nodes.append(&mut dependency_of_rec(os, dependency, node.path.clone()).unwrap());
+            }
+            Ok(nodes)
+        },
+        Err(e) => Err(e)
+    }
 }

@@ -12,7 +12,7 @@ pub fn add(args: &mut env::Args) -> Result<String, String> {
         None => return Err(String::from("Missing dependency name!"))
     };
 
-    match super::filesystem::get_dep_root() {
+    match super::filesystem::get_current_dep_root() {
         Ok(mut dir) => {
             dir.push(dep_name.clone());
             dep_dir = dir;
@@ -36,7 +36,7 @@ fn update_module(key: String, value: String) -> Result<String, String> {
     let path: PathBuf;
     let config: serde_json::Value;
 
-    match super::filesystem::get_module_root() {
+    match super::filesystem::get_current_module_root() {
         Some(p) => path = p,
         None => return Err(String::from("No config file in module found."))
     }
