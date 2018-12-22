@@ -1,10 +1,9 @@
 extern crate serde_json;
 
-use std::env;
 use std::result::Result;
 use std::path::PathBuf;
 
-pub fn add(args: &mut env::Args) -> Result<String, String> {
+pub fn add<I>(args: &mut I) -> Result<String, String> where I: Iterator<Item=String> {
     let dep_dir: PathBuf;
 
     let dep_name = match args.next() {

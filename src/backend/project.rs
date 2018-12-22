@@ -3,7 +3,7 @@ use std::result::Result;
 use std::process::{Command, Stdio};
 use super::deptree;
 
-pub fn init(args: &mut env::Args) {
+pub fn init<I>(args: &mut I) where I: Iterator<Item=String> {
     let mut directory = env::current_dir().unwrap();
 
     if let Some(projectname) = args.next() {
@@ -16,7 +16,7 @@ pub fn init(args: &mut env::Args) {
     }
 }
 
-pub fn build(args: &mut env::Args) -> Result<String, String> {
+pub fn build<I>(args: &mut I) -> Result<String, String> where I: Iterator<Item=String> {
     match args.next() {
         Some(ref module) if module.as_str() == "--module" => {
             match super::filesystem::get_current_module_root() {
@@ -33,7 +33,7 @@ pub fn build(args: &mut env::Args) -> Result<String, String> {
     }
 }
 
-pub fn exe(args: &mut env::Args) -> Result<String, String> {
+pub fn exe<I>(args: &mut I) -> Result<String, String> where I: Iterator<Item=String> {
     let output_dir;
     let mut args = String::new();
 
@@ -83,7 +83,7 @@ pub fn exe(args: &mut env::Args) -> Result<String, String> {
     }
 }
 
-pub fn run(args: &mut env::Args) -> Result<String, String> {
+pub fn run<I>(args: &mut I) -> Result<String, String> where I: Iterator<Item=String> {
     println!("Building project..");
 
     match build(args) {
@@ -94,7 +94,7 @@ pub fn run(args: &mut env::Args) -> Result<String, String> {
     exe(args)
 }
 
-pub fn delete(path: &mut env::Args) -> Result<String, String> {
+pub fn delete<I>(path: &mut I) -> Result<String, String> where I: Iterator<Item=String> {
     let path = match path.next() {
         Some(arg) => arg,
         None => return Err(String::from("Missing path as argument."))
@@ -109,7 +109,7 @@ pub fn delete(path: &mut env::Args) -> Result<String, String> {
     }
 }
 
-pub fn dep_tree(args: &mut env::Args) -> Result<deptree::Node, String> {
+pub fn dep_tree<I>(args: &mut I) -> Result<deptree::Node, String> where I: Iterator<Item=String> {
     let path = match super::filesystem::get_current_module_root() {
         Some(p) => p,
         None => return Err(String::from("Not in a project/dependency directory."))

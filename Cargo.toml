@@ -5,3 +5,4 @@ authors = ["Jan Allersma <jan@allersma.be>"]
 
 [dependencies]
 serde_json = "1.0"
+rustyline = "2.1.0"
