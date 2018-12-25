@@ -10,7 +10,11 @@ pub fn shell() {
     let mut editor = rustyline::Editor::<()>::new();
 
     loop {
-        let input = match editor.readline("ambassade> ") {
+        let status = dir.canonicalize().unwrap();
+        let mut status = String::from(status.file_name().unwrap().to_str().unwrap());
+        status.push_str("> ");
+
+        let input = match editor.readline(status.as_str()) {
             Ok(line) => line,
             Err(Error::Interrupted) => break,
             Err(_) => continue
