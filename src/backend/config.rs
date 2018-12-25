@@ -7,16 +7,15 @@ use std::result::Result;
 
 pub fn create(mut path: PathBuf) -> Result<(), Error> {
     let content = json!({
-        "version": 0.1,
         "build": {
-            "windows": "echo \"No build config set.\"",
-            "os-x": "echo \"No build config set.\"",
-            "linux": "echo \"No build config set.\""
+            "windows": "",
+            "os-x": "",
+            "linux": ""
         },
         "run": {
-            "windows": "echo \"No run config set.\"",
-            "os-x": "echo \"No run config set.\"",
-            "linux": "echo \"No run config set.\""
+            "windows": "",
+            "os-x": "",
+            "linux": ""
         }
     });
 

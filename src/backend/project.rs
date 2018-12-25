@@ -67,20 +67,7 @@ pub fn exe<I>(args: &mut I) -> Result<String, String> where I: Iterator<Item=Str
     }
 
     println!("Running project..");
-
-    let mut arguments: Vec<&str> = args.split(' ').collect();
-    let command = arguments.remove(0);
-    let out = Command::new(command)
-        .args(arguments)
-        .stdin(Stdio::inherit())
-        .stdout(Stdio::inherit())
-        .output()
-        .expect("");
-
-    match out.status.success() {
-        true => Ok(String::from_utf8_lossy(&out.stdout).to_string()),
-        false => Err(String::from_utf8_lossy(&out.stderr).to_string())
-    }
+    super::fetch::run(env::current_dir().unwrap(), args)
 }
 
 pub fn run<I>(args: &mut I) -> Result<String, String> where I: Iterator<Item=String> {

@@ -63,7 +63,7 @@ fn build_module(config: serde_json::Value) -> Result<String, String> {
         return Err(String::from("beheer.json: 'build->linux' should be a string."));
     }
 
-    super::fetch::fetch(env::current_dir().unwrap(), String::from(build_cmd.as_str().unwrap()))
+    super::fetch::build(env::current_dir().unwrap(), String::from(build_cmd.as_str().unwrap()))
 }
 
 #[cfg(target_os="macos")]

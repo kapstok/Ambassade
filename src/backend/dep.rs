@@ -195,7 +195,7 @@ fn dir_check(dependency: String, command: String) -> Result<String, String> {
             dep_dir.push(dependency);
             if !dep_dir.exists() {
                 dep_dir.pop();
-                return super::fetch::fetch(dep_dir, command);
+                return super::fetch::build(dep_dir, command);
             }
             Ok(String::from("Dependency found."))
         },
