@@ -8,3 +8,4 @@ pub mod build;
 pub mod dep;
 pub mod fetch;
 pub mod system;
+pub mod git;

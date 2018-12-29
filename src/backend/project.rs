@@ -1,6 +1,5 @@
 use std::env;
 use std::result::Result;
-use std::process::{Command, Stdio};
 use super::deptree;
 
 pub fn init<I>(args: &mut I) where I: Iterator<Item=String> {
@@ -96,6 +95,18 @@ pub fn delete<I>(path: &mut I) -> Result<String, String> where I: Iterator<Item=
     }
 }
 
+pub fn ignore<I>(args: &mut I) -> Result<(), String> where I: Iterator<Item=String> {
+    let mut path = match args.next() {
+        Some(arg) => arg,
+        None => return Err(String::from("Missing path as argument."))
+    };
+
+    match env::current_dir() {
+        Ok(mut dir) => super::git::ignore::add(&mut dir, &mut path),
+        Err(e) => Err(e.to_string())
+    }
+}
+
 pub fn dep_tree<I>(args: &mut I) -> Result<deptree::Node, String> where I: Iterator<Item=String> {
     let path = match super::filesystem::get_current_module_root() {
         Some(p) => p,
@@ -125,6 +136,7 @@ pub fn help() {
     println!("run [ARGUMENTS]\t\t\t  Build and run current project with ARGUMENTS to run project with.");
     println!("exe [ARGUMENTS]\t\t\t  Run current project with ARGUMENTS. The project won't be built.");
     println!("add NAME COMMAND [ARGUMENTS]\t  Add dependency with NAME to module and is built through COMMAND with ARGUMENTS.");
-    println!("delete PATH\t\t\t Delete a dependency in PATH.");
+    println!("hide NAME COMMAND [ARGUMENTS]\t  Add dependency with NAME to module and is built through COMMAND with ARGUMENTS. Add configfile to '.gitignore'.");
+    println!("delete PATH\t\t\t  Delete a dependency in PATH.");
     println!("dep-tree [all|linux|os-x|windows] Print a tree of all dependencies used (indirectly) by a project for specified OS. Defaults to 'all'.");
 }

@@ -48,6 +48,17 @@ fn parse<I>(args: &mut I, open_shell: bool) -> bool where I: Iterator<Item=Strin
                     Err(e) => println!("Could not add dependency: {}", e)
                 }
             }
+            else if argument == "hide" {
+                let result = match backend::project::ignore(args) {
+                    Ok(_) => backend::add::add(args),
+                    Err(e) => Err(e)
+                };
+
+                match result {
+                    Ok(msg) => println!("{}", msg),
+                    Err(e) => println!("Could not add dependency: {}", e)
+                }
+            }
             else if argument == "delete" {
                 match backend::project::delete(args) {
                     Ok(module) => println!("Module '{}' deleted.", module),

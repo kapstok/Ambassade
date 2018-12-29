@@ -56,8 +56,7 @@ fn dep_check(node: &Node) -> Result<(), String> {
     println!("Continue [y/N]?");
 
     match io::stdin().read_line(&mut input) {
-        Ok(_) if input.as_str() == "y\n" => {
-        },
+        Ok(_) if input.as_str() == "y\n" => {},
         Ok(_) => return Err(String::from("Aborted.")),
         Err(e) => return Err(e.to_string())
     }
