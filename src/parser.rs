@@ -43,20 +43,21 @@ fn parse<I>(args: &mut I, open_shell: bool) -> bool where I: Iterator<Item=Strin
                 }
             }
             else if argument == "add" {
-                match backend::add::add(args) {
+                match backend::project::add(&args.collect()) {
                     Ok(msg) => println!("{}", msg),
                     Err(e) => println!("Could not add dependency: {}", e)
                 }
             }
             else if argument == "hide" {
-                let result = match backend::project::ignore(args) {
-                    Ok(_) => backend::add::add(args),
-                    Err(e) => Err(e)
-                };
-
-                match result {
+                let args: Vec<String> = args.collect();
+                match backend::project::add(&args) {
                     Ok(msg) => println!("{}", msg),
                     Err(e) => println!("Could not add dependency: {}", e)
+                }
+
+                match backend::project::ignore(&args) {
+                    Ok(_) => println!("DONE! Dependency hidden."),
+                    Err(e) => println!("Could not hide dependency: {}", e)
                 }
             }
             else if argument == "delete" {
@@ -70,6 +71,9 @@ fn parse<I>(args: &mut I, open_shell: bool) -> bool where I: Iterator<Item=Strin
                     Ok(tree) => println!("{}", tree),
                     Err(e) => println!("Could not deduce dependency tree: {}", e)
                 }
+            }
+            else if argument == "git" {
+                backend::git::to_shell(args);
             }
             else {
                 return false;

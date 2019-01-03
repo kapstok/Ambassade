@@ -95,14 +95,43 @@ pub fn delete<I>(path: &mut I) -> Result<String, String> where I: Iterator<Item=
     }
 }
 
-pub fn ignore<I>(args: &mut I) -> Result<(), String> where I: Iterator<Item=String> {
-    let mut path = match args.next() {
-        Some(arg) => arg,
+pub fn add(args: &Vec<String>) -> Result<String, String> {
+    let mut path: String = match args.get(0) {
+        Some(arg) => arg.clone(),
         None => return Err(String::from("Missing path as argument."))
     };
 
-    match env::current_dir() {
-        Ok(mut dir) => super::git::ignore::add(&mut dir, &mut path),
+    match super::filesystem::get_current_module_root() {
+        Some(dir) => {
+            match super::git::ignore::add(&mut dir.clone(), &mut path) {
+                Ok(_) => {},
+                Err(e) => return Err(e)
+            }
+
+            match super::add::add(args) {
+                Ok(msg) => println!("{}", msg),
+                Err(e) => return Err(e)
+            }
+
+            match super::config::get_json(dir) {
+                Ok(json) => {
+                    super::dep::check(json)
+                },
+                Err(e) => return Err(e)
+            }
+        },
+        None => Err(String::from("Not in a project (sub)directory."))
+    }
+}
+
+pub fn ignore(args: &Vec<String>) -> Result<(), String> {
+    let mut entry: String = args.get(0).unwrap().clone();
+
+    match super::filesystem::get_current_dep_root() {
+        Ok(mut dir) => {
+            dir.push(&entry);
+            super::git::ignore::add(&mut dir, &mut entry) // entry moet "beheer.json" worden.
+        },
         Err(e) => Err(e.to_string())
     }
 }
@@ -128,7 +157,7 @@ pub fn help() {
     println!("$ beheer [FLAG] [COMMAND [ARGUMENTS]]");
     println!("");
 
-    println!("--help -h\t\tShow this message");
+    println!("--help -h\t\t\t\tShow this message");
     println!("");
 
     println!("init [DIRECTORY]\t\t  Initialize new project in specified directory. Defaults to current directory.");

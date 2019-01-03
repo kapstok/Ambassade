@@ -1,7 +1,7 @@
 use std::{path, env, fs};
 use std::io::{Result, Error, ErrorKind};
 
-fn get_root (mut path: path::PathBuf) -> Option<path::PathBuf> {
+fn get_root(mut path: path::PathBuf) -> Option<path::PathBuf> {
     loop {
         let mut config = path.clone();
         config.push("beheer.json");

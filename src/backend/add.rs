@@ -3,11 +3,12 @@ extern crate serde_json;
 use std::result::Result;
 use std::path::PathBuf;
 
-pub fn add<I>(args: &mut I) -> Result<String, String> where I: Iterator<Item=String> {
+pub fn add(args: &Vec<String>) -> Result<String, String> {
+    let mut it = args.iter().peekable();
     let dep_dir: PathBuf;
 
-    let dep_name = match args.next() {
-        Some(name) => name,
+    let dep_name: String = match it.next() {
+        Some(arg) => (*arg).clone(),
         None => return Err(String::from("Missing dependency name!"))
     };
 
@@ -23,10 +24,10 @@ pub fn add<I>(args: &mut I) -> Result<String, String> where I: Iterator<Item=Str
         return Err(String::from("Dependency already exists."))
     }
 
-    let mut args: String = args.into_iter().map(|arg| arg + " ").collect();
+    let mut args_s: String = it.map(|arg| arg.clone() + " ").collect();
 
-    match args.pop() {
-        Some(_) => update_module(dep_name, args),
+    match args_s.pop() {
+        Some(_) => update_module(dep_name, args_s),
         None => update_module(dep_name, String::new())
     }
 }
