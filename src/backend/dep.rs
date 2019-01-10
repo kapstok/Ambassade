@@ -21,15 +21,15 @@ pub fn json(config: String) -> Result<serde_json::Value, String> {
                     return Err(error);
                 },
                 serde_json::error::Category::Syntax => {
-                    error.push_str("Syntax error in 'beheer.json'");
+                    error.push_str("Syntax error in 'ambassade.json'");
                     return Err(error);
                 },
                 serde_json::error::Category::Data => {
-                    error.push_str("Semantic error in 'beheer.json'");
+                    error.push_str("Semantic error in 'ambassade.json'");
                     return Err(error);
                 },
                 serde_json::error::Category::Eof => {
-                    error.push_str("Unexpected end-of-file in 'beheer.json'");
+                    error.push_str("Unexpected end-of-file in 'ambassade.json'");
                     return Err(error);
                 }
             }
@@ -73,12 +73,12 @@ pub fn dep(config: serde_json::Value, os: &OS) -> Result<Vec<(String, String)>, 
                     Some(object) => {
                         for dep in object.iter() {
                             if !dep.1.is_string() {
-                                return Err(String::from("beheer.json: all deps should be strings!"))
+                                return Err(String::from("ambassade.json: all deps should be strings!"))
                             }
                             output.push((dep.0.to_string(), String::from(dep.1.as_str().unwrap())));
                         }
                     },
-                    None => return Err(String::from("beheer.json: 'deps->linux' should be an object."))
+                    None => return Err(String::from("ambassade.json: 'deps->linux' should be an object."))
                 }
             }
         },
@@ -89,12 +89,12 @@ pub fn dep(config: serde_json::Value, os: &OS) -> Result<Vec<(String, String)>, 
                     Some(object) => {
                         for dep in object.iter() {
                             if !dep.1.is_string() {
-                                return Err(String::from("beheer.json: all deps should be strings!"))
+                                return Err(String::from("ambassade.json: all deps should be strings!"))
                             }
                             output.push((dep.0.to_string(), String::from(dep.1.as_str().unwrap())));
                         }
                     },
-                    None => return Err(String::from("beheer.json: 'deps->os-x' should be an object."))
+                    None => return Err(String::from("ambassade.json: 'deps->os-x' should be an object."))
                 }
             }
         },
@@ -105,12 +105,12 @@ pub fn dep(config: serde_json::Value, os: &OS) -> Result<Vec<(String, String)>, 
                     Some(object) => {
                         for dep in object.iter() {
                             if !dep.1.is_string() {
-                                return Err(String::from("beheer.json: all deps should be strings!"))
+                                return Err(String::from("ambassade.json: all deps should be strings!"))
                             }
                             output.push((dep.0.to_string(), String::from(dep.1.as_str().unwrap())));
                         }
                     },
-                    None => return Err(String::from("beheer.json: 'deps->windows' should be an object."))
+                    None => return Err(String::from("ambassade.json: 'deps->windows' should be an object."))
                 }
             }
         }

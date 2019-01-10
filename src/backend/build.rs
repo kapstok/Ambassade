@@ -60,7 +60,7 @@ fn build_module(config: serde_json::Value) -> Result<String, String> {
     let build_cmd = &config["build"]["linux"];
 
     if !build_cmd.is_string() {
-        return Err(String::from("beheer.json: 'build->linux' should be a string."));
+        return Err(String::from("ambassade.json: 'build->linux' should be a string."));
     }
 
     super::fetch::build(env::current_dir().unwrap(), String::from(build_cmd.as_str().unwrap()))
@@ -73,7 +73,7 @@ fn build_module(config: serde_json::Value) -> Result<String, String> {
     let build_cmd = &config["build"]["os-x"];
 
     if !build_cmd.is_string() {
-        return Err(String::from("beheer.json: 'build->os-x' should be a string."));
+        return Err(String::from("ambassade.json: 'build->os-x' should be a string."));
     }
 
     super::fetch::fetch(env::get_current_dir().unwrap(), String::from(build_cmd.as_str().unwrap()))
@@ -86,7 +86,7 @@ fn build_module(config: serde_json::Value) -> Result<String, String> {
     let build_cmd = &config["build"]["windows"];
 
     if !build_cmd.is_string() {
-        return Err(String::from("beheer.json: 'build->windows' should be a string."));
+        return Err(String::from("ambassade.json: 'build->windows' should be a string."));
     }
 
     super::fetch::fetch(env::get_current_dir().unwrap(), String::from(build_cmd.as_str().unwrap()))

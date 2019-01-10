@@ -44,7 +44,7 @@ fn fetch(dep: PathBuf, command: String) -> Result<String, String> {
         },
         Err(e) => {
             let mut config_file = dep.clone();
-            config_file.push("beheer.json");
+            config_file.push("ambassade.json");
 
             let mut error = String::from("Fetching failed: command '");
             error.push_str(command);
@@ -54,7 +54,7 @@ fn fetch(dep: PathBuf, command: String) -> Result<String, String> {
 
             match config_file.to_str() {
                 Some(path) => error.push_str(path),
-                None => error.push_str("beheer.json")
+                None => error.push_str("ambassade.json")
             }
 
             error.push_str("' file.");

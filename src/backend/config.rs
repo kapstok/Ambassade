@@ -7,7 +7,7 @@ use std::path::PathBuf;
 use std::result::Result;
 
 pub fn create(mut path: PathBuf) -> Result<(), Error> {
-    path.push("beheer.json");
+    path.push("ambassade.json");
     init(&path)
 }
 
@@ -26,7 +26,7 @@ fn init(path: &PathBuf) -> Result<(), Error> {
     });
 
     match File::open(path.to_str().unwrap()) {
-        Ok(_) => return Err(Error::new(ErrorKind::AlreadyExists, "Already found a 'beheer.json' file.")),
+        Ok(_) => return Err(Error::new(ErrorKind::AlreadyExists, "Already found a 'ambassade.json' file.")),
         Err(_) => {
             match File::create(path) {
                 Ok(mut file) => {
@@ -41,7 +41,7 @@ fn init(path: &PathBuf) -> Result<(), Error> {
 }
 
 pub fn update(mut path: PathBuf, value: serde_json::Value) -> Result<(), String> {
-    path.push("beheer.json");
+    path.push("ambassade.json");
 
     match File::create(path) {
         Ok(mut file) => {
@@ -57,7 +57,7 @@ pub fn update(mut path: PathBuf, value: serde_json::Value) -> Result<(), String>
 fn read(path: &mut PathBuf) -> Result<String, Error> {
     let mut config = String::new();
 
-    path.push("beheer.json");
+    path.push("ambassade.json");
     check(&path);
 
     match File::open(path.to_str().unwrap()) {

@@ -46,19 +46,19 @@ pub fn exe<I>(args: &mut I) -> Result<String, String> where I: Iterator<Item=Str
             if cfg!(target_os = "linux") {
                 match config["run"]["linux"].as_str() {
                     Some(string) => args = String::from(string),
-                    None => return Err(String::from("beheer.json: 'run->linux' should be a string."))
+                    None => return Err(String::from("ambassade.json: 'run->linux' should be a string."))
                 }
             }
             if cfg!(target_os = "macos") {
                 match config["run"]["os-x"].as_str() {
                     Some(string) => args = String::from(string),
-                    None => return Err(String::from("beheer.json: 'run->os-x' should be a string."))
+                    None => return Err(String::from("ambassade.json: 'run->os-x' should be a string."))
                 }
             }
             if cfg!(target_os = "windows") {
                 match config["run"]["windows"].as_str() {
                     Some(string) => args = String::from(string),
-                    None => return Err(String::from("beheer.json: 'run->windows' should be a string."))
+                    None => return Err(String::from("ambassade.json: 'run->windows' should be a string."))
                 }
             }
         },
@@ -130,7 +130,7 @@ pub fn ignore(args: &Vec<String>) -> Result<(), String> {
     match super::filesystem::get_current_dep_root() {
         Ok(mut dir) => {
             dir.push(&entry);
-            super::git::ignore::add(&mut dir, &mut entry) // entry moet "beheer.json" worden.
+            super::git::ignore::add(&mut dir, &mut entry) // entry moet "ambassade.json" worden.
         },
         Err(e) => Err(e.to_string())
     }
@@ -154,7 +154,7 @@ pub fn dep_tree<I>(args: &mut I) -> Result<deptree::Node, String> where I: Itera
 
 pub fn help() {
     println!("Syntax:");
-    println!("$ beheer [FLAG] [COMMAND [ARGUMENTS]]");
+    println!("$ ambassade [FLAG] [COMMAND [ARGUMENTS]]");
     println!("");
 
     println!("--help -h\t\t\t\tShow this message");

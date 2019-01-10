@@ -4,7 +4,7 @@ use std::io::{Result, Error, ErrorKind};
 fn get_root(mut path: path::PathBuf) -> Option<path::PathBuf> {
     loop {
         let mut config = path.clone();
-        config.push("beheer.json");
+        config.push("ambassade.json");
 
         if config.as_path().is_file() {
             return Some(path);
