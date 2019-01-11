@@ -41,7 +41,7 @@ fn update_module(key: String, value: String) -> Result<String, String> {
         None => return Err(String::from("No config file in module found."))
     }
 
-    match super::config::get_json(path.clone()) {
+    match super::config::get_json_from_dir(path.clone()) {
         Ok(mut json) => {
             json["deps"]["linux"][key.clone()] = json!(value);
             json["deps"]["os-x"][key.clone()] = json!(value);

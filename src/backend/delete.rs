@@ -42,12 +42,12 @@ fn dep_check_rec(tree: &Node) -> Result<Vec<Node>, String> {
 
 fn dep_check(node: &Node) -> Result<(), String> {
     let mut input = String::new();
-    let mut config_path = PathBuf::new();
+    let mut super_module = String::new();
 
     match dep_check_rec(node) {
         Ok(nodes) => {
             for dep in nodes {
-                config_path = dep.path;
+                super_module = dep.name;
             }
         },
         Err(e) => return Err(e)
@@ -61,15 +61,20 @@ fn dep_check(node: &Node) -> Result<(), String> {
         Err(e) => return Err(e.to_string())
     }
 
-    if config_path == PathBuf::new() {
+    if super_module == String::new() {
         return Ok(());
     }
 
-    rm_from_config(config_path, node.name.clone())
+    rm_from_config(super_module, node.name.clone())
 }
 
-fn rm_from_config(super_module: PathBuf, dep_name: String) -> Result<(), String> {
-    let mut json = match super::config::get_json(super_module.clone()) {
+fn rm_from_config(super_module: String, dep_name: String) -> Result<(), String> {
+    let super_module = match super::dep_config::scan(super_module) {
+        Ok(path) => path,
+        Err(e) => return Err(e)
+    };
+
+    let mut json = match super::config::get_json(&super_module) {
         Ok(config) => config,
         Err(e) => return Err(e)
     };

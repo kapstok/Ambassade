@@ -7,7 +7,7 @@ use std::env;
 pub fn build(config_file: PathBuf) -> Result<String, String> {
     let config;
 
-    match super::config::get_json(config_file) {
+    match super::config::get_json_from_dir(config_file) {
         Ok(result) => config = result,
         Err(e) => return Err(e)
     }

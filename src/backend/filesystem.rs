@@ -66,3 +66,20 @@ pub fn get_dep_root(from_dir: path::PathBuf) -> Result<path::PathBuf> {
         None => Err(Error::new(ErrorKind::NotFound, "No project file found. Aborted."))
     }
 }
+
+pub fn get_dep_config_root() -> Result<path::PathBuf> {
+    match get_current_project_root() {
+        Some(mut path) => {
+            path.push("dep_config");
+            if !path.exists() {
+                println!("\t No dep_config folder found. Creating folder..");
+                match fs::create_dir(path.clone()) {
+                    Ok(_) => println!("\tCreated dir {}.", path.clone().to_str().unwrap()),
+                    Err(e) => return Err(e)
+                }
+            }
+            Ok(path)
+        },
+        None => Err(Error::new(ErrorKind::NotFound, "No project file found. Aborted."))
+    }
+}

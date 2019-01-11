@@ -6,30 +6,34 @@ use std::path::PathBuf;
 use std::result::Result;
 
 pub fn build(dep: PathBuf, mut command: String) -> Result<String, String> {
+    let dep_name = String::from(dep.file_name().unwrap().to_str().unwrap());
+
     if command == String::new() {
-        match set_command(&dep, true) {
+        match set_command(&dep_name, true) {
             Some(cmd) => command = cmd,
             None => return Err(String::from("Fetching failed: no appropriate command set."))
         }
     }
-    fetch(dep, command)
+    fetch(dep_name, &dep, command)
 }
 
 pub fn run(dep: PathBuf, mut command: String) -> Result<String, String> {
+    let dep_name = String::from(dep.file_name().unwrap().to_str().unwrap());
+
     if command == String::new() {
-        match set_command(&dep, false) {
+        match set_command(&dep_name, false) {
             Some(cmd) => command = cmd,
             None => return Err(String::from("Fetching failed: no appropriate command set."))
         }
     }
-    fetch(dep, command)
+    fetch(dep_name, &dep, command)
 }
 
-fn fetch(dep: PathBuf, command: String) -> Result<String, String> {
+fn fetch(dep_name: String, path: &PathBuf, command: String) -> Result<String, String> {
     let mut args: Vec<&str> = command.split(' ').collect();
     let command = args.remove(0);
     let out = Command::new(command)
-        .current_dir(&dep)
+        .current_dir(path)
         .args(args)
         .stdin(Stdio::inherit())
         .stdout(Stdio::inherit())
@@ -43,8 +47,10 @@ fn fetch(dep: PathBuf, command: String) -> Result<String, String> {
             }
         },
         Err(e) => {
-            let mut config_file = dep.clone();
-            config_file.push("ambassade.json");
+            let config_path = match super::dep_config::scan(dep_name) {
+                Ok(p) => p,
+                Err(e) => return Err(e)
+            };
 
             let mut error = String::from("Fetching failed: command '");
             error.push_str(command);
@@ -52,9 +58,9 @@ fn fetch(dep: PathBuf, command: String) -> Result<String, String> {
             error.push_str(&e.to_string());
             error.push_str("\n\nConsider changing the above command in the '");
 
-            match config_file.to_str() {
-                Some(path) => error.push_str(path),
-                None => error.push_str("ambassade.json")
+            match config_path.to_str() {
+                Some(p) => error.push_str(p),
+                None => error.push_str("configuration")
             }
 
             error.push_str("' file.");
@@ -63,7 +69,7 @@ fn fetch(dep: PathBuf, command: String) -> Result<String, String> {
     }
 }
 
-fn set_command(dep: &PathBuf, build_cmd: bool) -> Option<String> {
+fn set_command(dep: &String, build_cmd: bool) -> Option<String> {
     let mut editor = rustyline::Editor::<()>::new();
 
     let msg = match build_cmd {
@@ -94,10 +100,15 @@ fn set_command(dep: &PathBuf, build_cmd: bool) -> Option<String> {
     }
 }
 
-fn update_module(root: &PathBuf, key: String, value: String) -> Result<String, String> {
+fn update_module(dep_name: &String, key: String, value: String) -> Result<String, String> {
     let config: serde_json::Value;
 
-    match super::config::get_json(root.clone()) {
+    let path = match super::dep_config::scan(dep_name.clone()) {
+        Ok(path) => path,
+        Err(e) => return Err(e)
+    };
+
+    match super::config::get_json(&path) {
         Ok(mut json) => {
             json[key.clone()]["linux"] = json!(value);
             json[key.clone()]["os-x"] = json!(value);
@@ -107,7 +118,7 @@ fn update_module(root: &PathBuf, key: String, value: String) -> Result<String, S
         Err(e) => return Err(e)
     }
 
-    match super::config::update(root.clone(), config) {
+    match super::config::update(path, config) {
         Ok(_) => Ok(String::from("Command updated!")),
         Err(e) => Err(e)
     }

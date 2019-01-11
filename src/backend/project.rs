@@ -41,7 +41,7 @@ pub fn exe<I>(args: &mut I) -> Result<String, String> where I: Iterator<Item=Str
         None => return Err(String::from("not in a project (sub)directory."))
     }
 
-    match super::config::get_json(output_dir) {
+    match super::config::get_json_from_dir(output_dir) {
         Ok(config) => {
             if cfg!(target_os = "linux") {
                 match config["run"]["linux"].as_str() {
@@ -113,7 +113,7 @@ pub fn add(args: &Vec<String>) -> Result<String, String> {
                 Err(e) => return Err(e)
             }
 
-            match super::config::get_json(dir) {
+            match super::config::get_json_from_dir(dir) {
                 Ok(json) => {
                     super::dep::check(json)
                 },

@@ -11,7 +11,7 @@ pub fn create(mut path: PathBuf) -> Result<(), Error> {
     init(&path)
 }
 
-fn init(path: &PathBuf) -> Result<(), Error> {
+pub fn init(path: &PathBuf) -> Result<(), Error> {
     let content = json!({
         "build": {
             "windows": "",
@@ -54,10 +54,9 @@ pub fn update(mut path: PathBuf, value: serde_json::Value) -> Result<(), String>
     }
 }
 
-fn read(path: &mut PathBuf) -> Result<String, Error> {
+fn read(path: &PathBuf) -> Result<String, Error> {
     let mut config = String::new();
 
-    path.push("ambassade.json");
     check(&path);
 
     match File::open(path.to_str().unwrap()) {
@@ -70,8 +69,8 @@ fn read(path: &mut PathBuf) -> Result<String, Error> {
     Ok(config)
 }
 
-pub fn get_json(mut path: PathBuf) -> Result<serde_json::Value, String> {
-    match read(&mut path) {
+pub fn get_json(path: &PathBuf) -> Result<serde_json::Value, String> {
+    match read(path) {
         Ok(config) => super::dep::json(config),
         Err(e) => {
             println!("Error on config file: '{}'.", path.to_str().unwrap());
@@ -82,6 +81,11 @@ pub fn get_json(mut path: PathBuf) -> Result<serde_json::Value, String> {
             }
         }
     }
+}
+
+pub fn get_json_from_dir(mut path: PathBuf) -> Result<serde_json::Value, String> {
+    path.push("ambassade.json");
+    get_json(&path)
 }
 
 fn check(config: &PathBuf) {

@@ -48,8 +48,14 @@ impl PartialEq for Node {
 pub fn print(os: &OS, path: PathBuf) -> Result<Node, String> {
     let mut deps: Vec<String> = Vec::new();
     let mut nodes: Vec<Node> = Vec::new();
+    let dep_name = String::from(path.file_name().unwrap().to_str().unwrap());
 
-    let deps_json = match super::config::get_json(path.clone()) {
+    let config_path = match super::dep_config::scan(dep_name.clone()) {
+        Ok(path) => path,
+        Err(e) => return Err(e)
+    };
+
+    let deps_json = match super::config::get_json(&config_path) {
         Ok(config) => config,
         Err(e) => return Err(e)
     };
@@ -77,8 +83,8 @@ pub fn print(os: &OS, path: PathBuf) -> Result<Node, String> {
     }
 
     let root = Node {
-        name: String::from(path.file_name().unwrap().to_str().unwrap()),
-        path: path,
+        name: dep_name,
+        path: path, // What if backend::config::get_json_from_dir(root.path) gets called?
         depends_on: nodes
     };
 

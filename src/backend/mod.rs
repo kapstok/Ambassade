@@ -1,6 +1,7 @@
 pub mod add;
 pub mod delete;
 pub mod config;
+pub mod dep_config;
 pub mod deptree;
 pub mod project;
 pub mod filesystem;
