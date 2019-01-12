@@ -118,7 +118,7 @@ fn update_module(dep_name: &String, key: String, value: String) -> Result<String
         Err(e) => return Err(e)
     }
 
-    match super::config::update(path, config) {
+    match super::config::update(&path, config) {
         Ok(_) => Ok(String::from("Command updated!")),
         Err(e) => Err(e)
     }

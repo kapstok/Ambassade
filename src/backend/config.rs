@@ -40,9 +40,7 @@ pub fn init(path: &PathBuf) -> Result<(), Error> {
     Ok(())
 }
 
-pub fn update(mut path: PathBuf, value: serde_json::Value) -> Result<(), String> {
-    path.push("ambassade.json");
-
+pub fn update(path: &PathBuf, value: serde_json::Value) -> Result<(), String> {
     match File::create(path) {
         Ok(mut file) => {
             match file.write_all(serde_json::to_string_pretty(&value).unwrap().as_bytes()) {

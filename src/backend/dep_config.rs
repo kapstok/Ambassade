@@ -31,6 +31,17 @@ pub fn scan(dep_name: String) -> Result<PathBuf, String> {
         return Ok(config_path);
     }
 
+    match super::filesystem::get_current_project_root() {
+        Some(mut path) => {
+            if String::from(path.file_name().unwrap().to_str().unwrap()) == dep_name {
+                println!("Project name equals dep name. Taking project's configfile...");
+                path.push("ambassade.json");
+                return Ok(path);
+            }
+        },
+        None => println!("Couldn't find current project root. Skipped in scan.")
+    }
+
     match super::filesystem::get_current_dep_root() {
         Ok(mut path) => {
             path.push(dep_name);

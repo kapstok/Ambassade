@@ -19,7 +19,10 @@ pub fn build<I>(args: &mut I) -> Result<String, String> where I: Iterator<Item=S
     match args.next() {
         Some(ref module) if module.as_str() == "--module" => {
             match super::filesystem::get_current_module_root() {
-                Some(dir) => super::build::build(dir),
+                Some(dir) => {
+                    let dep_name = String::from(dir.file_name().unwrap().to_str().unwrap());
+                    super::build::build(dep_name)
+                },
                 None => Err(String::from("not in a project (sub)directory."))
             }
         },
@@ -96,14 +99,14 @@ pub fn delete<I>(path: &mut I) -> Result<String, String> where I: Iterator<Item=
 }
 
 pub fn add(args: &Vec<String>) -> Result<String, String> {
-    let mut path: String = match args.get(0) {
+    let mut dep: String = match args.get(0) {
         Some(arg) => arg.clone(),
-        None => return Err(String::from("Missing path as argument."))
+        None => return Err(String::from("Missing dependency name as argument."))
     };
 
     match super::filesystem::get_current_module_root() {
         Some(dir) => {
-            match super::git::ignore::add(&mut dir.clone(), &mut path) {
+            match super::git::ignore::add(&mut dir.clone(), &mut dep) {
                 Ok(_) => {},
                 Err(e) => return Err(e)
             }
@@ -124,16 +127,23 @@ pub fn add(args: &Vec<String>) -> Result<String, String> {
     }
 }
 
-pub fn ignore(args: &Vec<String>) -> Result<(), String> {
-    let mut entry: String = args.get(0).unwrap().clone();
-
-    match super::filesystem::get_current_dep_root() {
-        Ok(mut dir) => {
-            dir.push(&entry);
-            super::git::ignore::add(&mut dir, &mut entry) // entry moet "ambassade.json" worden.
-        },
-        Err(e) => Err(e.to_string())
+pub fn hide(args: &Vec<String>) -> Result<String, String> {
+    match add(args) {
+        Ok(msg) => println!("{}", msg),
+        Err(e) => return Err(e)
     }
+
+    let dep: String = match args.get(0) {
+        Some(arg) => arg.clone(),
+        None => return Err(String::from("Missing dep name."))
+    };
+
+    match super::dep_config::init(dep.clone()) {
+        Ok(_) => println!("Created '{}.json' in 'dep_config' folder.", dep),
+        Err(e) => return Err(e)
+    }
+
+    Ok(String::from("dependency successfully hidden!"))
 }
 
 pub fn dep_tree<I>(args: &mut I) -> Result<deptree::Node, String> where I: Iterator<Item=String> {

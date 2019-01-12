@@ -50,13 +50,8 @@ fn parse<I>(args: &mut I, open_shell: bool) -> bool where I: Iterator<Item=Strin
             }
             else if argument == "hide" {
                 let args: Vec<String> = args.collect();
-                match backend::project::add(&args) {
+                match backend::project::hide(&args) {
                     Ok(msg) => println!("{}", msg),
-                    Err(e) => println!("Could not add dependency: {}", e)
-                }
-
-                match backend::project::ignore(&args) {
-                    Ok(_) => println!("DONE! Dependency hidden."),
                     Err(e) => println!("Could not hide dependency: {}", e)
                 }
             }

@@ -30,3 +30,5 @@ pub fn add(path: &mut PathBuf, item: &mut String) -> Result<(), String> {
         }
     }
 }
+
+// pub fn init(); // Moet evt .gitignore aanmaken en de dep folder in de .gitignore plaatsen.
