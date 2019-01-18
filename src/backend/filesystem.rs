@@ -1,4 +1,4 @@
-use std::{path, env, fs, result};
+use std::{path, env, fs};
 use std::io::{Result, Error, ErrorKind};
 
 fn get_root(mut path: path::PathBuf) -> Option<path::PathBuf> {
@@ -64,29 +64,6 @@ pub fn get_dep_root(from_dir: path::PathBuf) -> Result<path::PathBuf> {
             Ok(path)
         },
         None => Err(Error::new(ErrorKind::NotFound, "No project file found. Aborted."))
-    }
-}
-
-pub fn search_current_module_root(dep_name: String) -> result::Result<path::PathBuf, String> {
-    search_module_root(dep_name, env::current_dir().unwrap())
-}
-
-pub fn search_module_root(dep_name: String, from_dir: path::PathBuf) -> result::Result<path::PathBuf, String> {
-    let project_path = match get_project_root(from_dir.clone()) {
-        Some(path) => path,
-        None => return Err(String::from("No project folder found!"))
-    };
-
-    if dep_name == String::from(project_path.file_name().unwrap().to_str().unwrap()) {
-        return Ok(project_path);
-    }
-
-    match get_dep_root(from_dir) {
-        Ok(mut dir) => {
-            dir.push(dep_name);
-            Ok(dir)
-        },
-        Err(e) => Err(e.to_string())
     }
 }
 

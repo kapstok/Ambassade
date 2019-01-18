@@ -4,12 +4,7 @@ use std::result::Result;
 use std::path::PathBuf;
 
 pub fn build(dep_name: String) -> Result<String, String> {
-    let dep_path = match super::filesystem::search_current_module_root(dep_name.clone()) {
-        Ok(path) => path,
-        Err(e) => return Err(e.to_string())
-    };
-
-    let config_path = match super::dep_config::scan(dep_name) {
+    let config_path = match super::dep_config::scan(dep_name.clone()) {
         Ok(path) => path,
         Err(e) => return Err(e)
     };
@@ -24,7 +19,7 @@ pub fn build(dep_name: String) -> Result<String, String> {
         Err(e) => return Err(e)
     }
 
-    match build_module(dep_path, config) {
+    match build_module(dep_name, config) {
         Ok(result) => println!("{}", result),
         Err(e) => return Err(e)
     }
@@ -61,7 +56,7 @@ pub fn build_rec(config_file: PathBuf) -> Result<String, String> {
 }
 
 #[cfg(target_os="linux")]
-fn build_module(config_path: PathBuf, config_value: serde_json::Value) -> Result<String, String> {
+fn build_module(dep_name: String, config_value: serde_json::Value) -> Result<String, String> {
     println!("Building module..");
 
     let build_cmd = &config_value["build"]["linux"];
@@ -70,11 +65,11 @@ fn build_module(config_path: PathBuf, config_value: serde_json::Value) -> Result
         return Err(String::from("ambassade.json: 'build->linux' should be a string."));
     }
 
-    super::fetch::build(config_path, String::from(build_cmd.as_str().unwrap()))
+    super::fetch::build(dep_name, String::from(build_cmd.as_str().unwrap()))
 }
 
 #[cfg(target_os="macos")]
-fn build_module(config_path: PathBuf, config_value: serde_json::Value) -> Result<String, String> {
+fn build_module(dep_name: String, config_value: serde_json::Value) -> Result<String, String> {
     println!("Building module..");
 
     let build_cmd = &config_value["build"]["os-x"];
@@ -83,11 +78,11 @@ fn build_module(config_path: PathBuf, config_value: serde_json::Value) -> Result
         return Err(String::from("ambassade.json: 'build->os-x' should be a string."));
     }
 
-    super::fetch::build(config_path, String::from(build_cmd.as_str().unwrap()))
+    super::fetch::build(dep_name, String::from(build_cmd.as_str().unwrap()))
 }
 
 #[cfg(target_os="windows")]
-fn build_module(config_path: PathBuf, config_value: serde_json::Value) -> Result<String, String> {
+fn build_module(dep_name: String, config_value: serde_json::Value) -> Result<String, String> {
     println!("Building module..");
 
     let build_cmd = &config_value["build"]["windows"];
@@ -96,5 +91,5 @@ fn build_module(config_path: PathBuf, config_value: serde_json::Value) -> Result
         return Err(String::from("ambassade.json: 'build->windows' should be a string."));
     }
 
-    super::fetch::build(config_path, String::from(build_cmd.as_str().unwrap()))
+    super::fetch::build(dep_name, String::from(build_cmd.as_str().unwrap()))
 }

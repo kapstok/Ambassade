@@ -192,10 +192,10 @@ fn dir_check(dependency: String, command: String) -> Result<String, String> {
 
     match dir {
         Ok(mut dep_dir) => {
-            dep_dir.push(dependency);
+            dep_dir.push(dependency.clone());
             if !dep_dir.exists() {
                 dep_dir.pop();
-                return super::fetch::build(dep_dir, command);
+                return super::fetch::build_from_path(dependency, command, dep_dir);
             }
             Ok(String::from("Dependency found."))
         },

@@ -5,16 +5,22 @@ use std::process::{Command, Stdio};
 use std::path::PathBuf;
 use std::result::Result;
 
-pub fn build(dep: PathBuf, mut command: String) -> Result<String, String> {
-    let dep_name = String::from(dep.file_name().unwrap().to_str().unwrap());
-
+pub fn build_from_path(dep_name: String, mut command: String, path: PathBuf) -> Result<String, String> {
     if command == String::new() {
         match set_command(&dep_name, true) {
             Some(cmd) => command = cmd,
             None => return Err(String::from("Fetching failed: no appropriate command set."))
         }
     }
-    fetch(dep_name, dep, command)
+
+    fetch(dep_name, path, command)
+}
+
+pub fn build(dep_name: String, command: String) -> Result<String, String> {
+    match super::filesystem::get_current_project_root() {
+        Some(dir) => build_from_path(dep_name, command, dir),
+        None => return Err(String::from("Not in a project (sub)directory."))
+    }
 }
 
 pub fn run(dep: PathBuf, mut command: String) -> Result<String, String> {
@@ -40,6 +46,8 @@ fn fetch(dep_name: String, mut path: PathBuf, command: String) -> Result<String,
             None => return Err(String::from("No valid fetch directory found!"))
         }
     }
+
+    println!("Running from {} ..", path.to_str().unwrap());
 
     let out = Command::new(command)
         .current_dir(&path)

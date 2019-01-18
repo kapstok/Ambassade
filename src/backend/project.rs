@@ -26,7 +26,7 @@ pub fn build<I>(args: &mut I) -> Result<String, String> where I: Iterator<Item=S
                 None => Err(String::from("not in a project (sub)directory."))
             }
         },
-        Some(_) | None => {
+        _ => {
             match super::filesystem::get_current_project_root() {
                 Some(dir) => super::build::build_rec(dir),
                 None => Err(String::from("not in a project (sub)directory."))
