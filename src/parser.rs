@@ -31,7 +31,7 @@ fn parse<I>(args: &mut I, open_shell: bool) -> bool where I: Iterator<Item=Strin
                 }
             }
             else if argument == "run" {
-                match backend::project::run(args) {
+                match backend::project::run(&mut args.collect()) {
                     Ok(_) => {},
                     Err(e) => println!("Running project failed: {}", e)
                 }

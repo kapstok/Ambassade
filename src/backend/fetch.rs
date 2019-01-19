@@ -35,7 +35,7 @@ pub fn run(dep: PathBuf, mut command: String) -> Result<String, String> {
     fetch(dep_name, dep, command)
 }
 
-fn fetch(dep_name: String, mut path: PathBuf, command: String) -> Result<String, String> {
+pub fn fetch(dep_name: String, mut path: PathBuf, command: String) -> Result<String, String> {
     let mut args: Vec<&str> = command.split(' ').collect();
     let command = args.remove(0);
 

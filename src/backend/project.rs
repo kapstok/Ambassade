@@ -1,3 +1,4 @@
+use std::thread;
 use std::env;
 use std::result::Result;
 use super::deptree;
@@ -36,51 +37,57 @@ pub fn build<I>(args: &mut I) -> Result<String, String> where I: Iterator<Item=S
 }
 
 pub fn exe<I>(args: &mut I) -> Result<String, String> where I: Iterator<Item=String> {
-    let output_dir;
-    let mut args = String::new();
-
     match super::filesystem::get_current_project_root() {
-        Some(dir) => output_dir = dir,
-        None => return Err(String::from("not in a project (sub)directory."))
+        Some(dir) => super::run::run_sync(String::from(dir.file_name().unwrap().to_str().unwrap())),
+        None => Err(String::from("not in a project (sub)directory."))
     }
-
-    match super::config::get_json_from_dir(output_dir) {
-        Ok(config) => {
-            if cfg!(target_os = "linux") {
-                match config["run"]["linux"].as_str() {
-                    Some(string) => args = String::from(string),
-                    None => return Err(String::from("ambassade.json: 'run->linux' should be a string."))
-                }
-            }
-            if cfg!(target_os = "macos") {
-                match config["run"]["os-x"].as_str() {
-                    Some(string) => args = String::from(string),
-                    None => return Err(String::from("ambassade.json: 'run->os-x' should be a string."))
-                }
-            }
-            if cfg!(target_os = "windows") {
-                match config["run"]["windows"].as_str() {
-                    Some(string) => args = String::from(string),
-                    None => return Err(String::from("ambassade.json: 'run->windows' should be a string."))
-                }
-            }
-        },
-        Err(e) => return Err(e)
-    }
-
-    println!("Running project..");
-    super::fetch::run(env::current_dir().unwrap(), args)
 }
 
-pub fn run<I>(args: &mut I) -> Result<String, String> where I: Iterator<Item=String> {
+pub fn run(args: &mut Vec<String>) -> Result<String, String> {
     println!("Building project..");
 
-    match build(args) {
+    let mut threads = super::internal::paralellism::Threadhandler::new();
+
+    match build(&mut args.clone().into_iter()) {
         Ok(output) => println!("{}", output),
         Err(e) => return Err(e)
     }
 
-    exe(args)
+    if args.len() > 1 {
+        let mut modules = args.len() - 1;
+        while modules > 0 {
+            println!("running async module {}: {}", modules, args[modules]);
+            match super::run::run_async(args[modules].clone(), &mut threads) {
+                Ok(_) => {},
+                Err(e) => return Err(e)
+            }
+            modules -= 1;
+        }
+    }
+
+    if args.len() > 0 {
+        let handler = thread::spawn(move || threads.start());
+
+        println!("running sync module 0: {}", args[0]);
+        let result = match super::run::run_sync(args[0].clone()) {
+            Ok(_) => Ok(String::from("Run succeeded! Quitting..")),
+            Err(e) => Err(e)
+        };
+
+        handler.join().unwrap();
+
+        return result;
+    }
+
+    let config = match super::filesystem::get_current_project_root() {
+        Some(path) => path,
+        None => return Err(String::from("Not in a project (sub)directory."))
+    };
+
+    match super::run::run_sync(String::from(config.file_name().unwrap().to_str().unwrap())) {
+        Ok(_) => Ok(String::from("Run succeeded! Quitting..")),
+        Err(e) => Err(e)
+    }
 }
 
 pub fn delete<I>(path: &mut I) -> Result<String, String> where I: Iterator<Item=String> {
@@ -172,7 +179,7 @@ pub fn help() {
 
     println!("init [DIRECTORY]\t\t  Initialize new project in specified directory. Defaults to current directory.");
     println!("build [--module]\t\t  Build current project if module flag is not specified, otherwise only the module will be built.");
-    println!("run [ARGUMENTS]\t\t\t  Build and run current project with ARGUMENTS to run project with.");
+    println!("run [MODULES]\t\t\t  Build current project and run MODULES. MODULES default to the project module.");
     println!("exe [ARGUMENTS]\t\t\t  Run current project with ARGUMENTS. The project won't be built.");
     println!("add NAME COMMAND [ARGUMENTS]\t  Add dependency with NAME to module and is built through COMMAND with ARGUMENTS.");
     println!("hide NAME COMMAND [ARGUMENTS]\t  Add dependency with NAME to module and is built through COMMAND with ARGUMENTS. Add configfile to '.gitignore'.");
