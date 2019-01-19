@@ -10,6 +10,11 @@ pub fn init<I>(args: &mut I) where I: Iterator<Item=String> {
         directory.push(&projectname);
     }
 
+    match super::git::ignore::init(&mut directory.clone()) {
+        Ok(_) => {},
+        Err(e) => println!("Add 'dep' folder to .gitignore failed: {}. Continuing with project initialization..", e)
+    }
+
     match super::config::create(directory) {
         Ok(_) => println!("Initialized project!"),
         Err(e) => println!("Initializing project failed: {}", e)
@@ -106,18 +111,13 @@ pub fn delete<I>(path: &mut I) -> Result<String, String> where I: Iterator<Item=
 }
 
 pub fn add(args: &Vec<String>) -> Result<String, String> {
-    let mut dep: String = match args.get(0) {
+    let _dep: String = match args.get(0) {
         Some(arg) => arg.clone(),
         None => return Err(String::from("Missing dependency name as argument."))
     };
 
     match super::filesystem::get_current_module_root() {
         Some(dir) => {
-            match super::git::ignore::add(&mut dir.clone(), &mut dep) {
-                Ok(_) => {},
-                Err(e) => return Err(e)
-            }
-
             match super::add::add(args) {
                 Ok(msg) => println!("{}", msg),
                 Err(e) => return Err(e)
