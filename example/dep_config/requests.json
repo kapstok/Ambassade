@@ -1,0 +1,12 @@
+{
+  "build": {
+    "linux": "pip install ./dep/requests --user",
+    "os-x": "pip install ./dep/requests --user",
+    "windows": "pip install ./dep/requests --user"
+  },
+  "run": {
+    "linux": "",
+    "os-x": "",
+    "windows": ""
+  }
+}
