@@ -1,7 +1,10 @@
 use backend;
 use std::thread;
+use std::sync::Arc;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::result::Result;
 use std::path::PathBuf;
+use std::time::Duration;
 
 type FetchPtr = fn(String, PathBuf, String) -> Result<String, String>;
 
@@ -40,25 +43,43 @@ impl Threadhandler {
     }
 
     pub fn start(&mut self) {
-        let mut handles = vec![];
-
         if self.triggered {
             println!("{}", "Threadhandler already started.");
             return
         }
 
         self.triggered = true;
+        let mut handles = vec![];
+        let running_jobs = Arc::new(AtomicUsize::new(0));
+
 
         for job in self.jobs.clone() {
             println!("Thread: {:?}", &job);
-            let handle = thread::spawn(|| job.0(job.1, job.2, job.3));
+            running_jobs.fetch_add(1, Ordering::Release);
+            let running_jobs = Arc::clone(&running_jobs);
+
+            let handle = thread::spawn(move|| {
+                match &job.0(job.1.clone(), job.2.clone(), job.3.clone()) {
+                    Ok(msg) => println!("{}", msg),
+                    Err(e) => println!("Thread {:?} paniced. Details: {}", &job, e)
+                }
+
+                running_jobs.fetch_sub(1, Ordering::Relaxed);
+            });
+
             handles.push(handle);
         }
 
         println!("All scheduled jobs are running! Waiting for job to finish..");
 
+        while running_jobs.load(Ordering::Relaxed) != 0 {
+            thread::sleep(Duration::from_secs(3));
+        }
+
         for handle in handles {
+            println!("Join handle..");
             handle.join().unwrap();
+            println!("Handle joined.");
         }
     }
 }
