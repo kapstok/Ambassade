@@ -174,9 +174,7 @@ pub fn help() {
     println!("$ ambassade [FLAG] [COMMAND [ARGUMENTS]]");
     println!("");
 
-    println!("--help -h\t\t\t\tShow this message");
-    println!("");
-
+    println!("help\t\t\t\tShow this message");
     println!("init [DIRECTORY]\t\t  Initialize new project in specified directory. Defaults to current directory.");
     println!("build [--module]\t\t  Build current project if module flag is not specified, otherwise only the module will be built.");
     println!("run [MODULES]\t\t\t  Build current project and run MODULES. MODULES default to the project module.");

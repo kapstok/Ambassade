@@ -18,7 +18,7 @@ pub fn parse_command<'a, I>(args: &mut I) -> bool where I: Iterator<Item=&'a str
 fn parse<I>(args: &mut I, open_shell: bool) -> bool where I: Iterator<Item=String> {
     match args.next() {
         Some(argument) => {
-            if argument == "--help" || argument == "-h" {
+            if argument == "--help" || argument == "-h" || argument == "help" {
                 backend::project::help();
             }
             else if argument == "init" {
