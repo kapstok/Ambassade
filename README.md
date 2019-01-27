@@ -28,9 +28,15 @@ advanced usage of Ambassade, you will have to edit the config files.
 
 ## Getting Ambassade
 
+### Download exectuable
+
+You can download the executable from
+[itch.io](https://helgade.itch.io/ambassade).
+
 ### Building from source
 
-Use Cargo to build Ambassade from source:
+Use [Cargo](https://doc.rust-lang.org/stable/cargo/) to build Ambassade from
+source:
 
 ```bash
 cargo build # For debug version
