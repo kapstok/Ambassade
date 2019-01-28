@@ -1,6 +1,6 @@
 [[package]]
 name = "ambassade"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "git2 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "rustyline 2.1.0 (registry+https://github.com/rust-lang/crates.io-index)",

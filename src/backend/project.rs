@@ -180,7 +180,7 @@ pub fn help() {
     println!("run [MODULES]\t\t\t  Build current project and run MODULES. MODULES default to the project module.");
     println!("exe [ARGUMENTS]\t\t\t  Run current project with ARGUMENTS. The project won't be built.");
     println!("add NAME COMMAND [ARGUMENTS]\t  Add dependency with NAME to module and is built through COMMAND with ARGUMENTS.");
-    println!("hide NAME COMMAND [ARGUMENTS]\t  Add dependency with NAME to module and is built through COMMAND with ARGUMENTS. Add configfile to '.gitignore'.");
+    println!("hide NAME COMMAND [ARGUMENTS]\t  Add dependency with NAME to module and is built through COMMAND with ARGUMENTS. Overwrites configuration of dependecy if present. Otherwise, the config file will be held in the 'dep_config' directory.");
     println!("delete PATH\t\t\t  Delete a dependency in PATH.");
     println!("dep-tree [all|linux|os-x|windows] Print a tree of all dependencies used (indirectly) by a project for specified OS. Defaults to 'all'.");
 }
