@@ -1,3 +1,5 @@
+extern crate ambassade_debug as dbg;
+
 pub enum OS {
     All,
     Linux,
@@ -20,4 +22,9 @@ impl OS {
     pub fn current() -> OS {
         OS::Windows
     }
+}
+
+
+pub fn watch() {
+    dbg::watch(super::internal::postmortem::DefaultSubmitMethod{});
 }

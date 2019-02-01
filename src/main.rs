@@ -6,6 +6,8 @@ mod shell;
 mod parser;
 
 fn main() {
+    backend::system::watch();
+
     match backend::filesystem::get_current_project_root() {
         Some(_) => println!("You are in a project."),
         None => println!("You are not in a project.")

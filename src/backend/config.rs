@@ -55,7 +55,7 @@ pub fn update(path: &PathBuf, value: serde_json::Value) -> Result<(), String> {
 fn read(path: &PathBuf) -> Result<String, Error> {
     let mut config = String::new();
 
-    check(&path);
+    check(path);
 
     match File::open(path.to_str().unwrap()) {
         Ok(mut file) => {
@@ -91,14 +91,22 @@ fn check(config: &PathBuf) {
         let mut input = String::new();
 
         println!("'{}' not found. ", config.to_str().unwrap());
-        println!("Initialize module with new config file [y/N]?");
 
-        match io::stdin().read_line(&mut input) {
-            Ok(_) if input.as_str() == "y\n" => match init(config) {
-                Ok(_) => {},
-                Err(e) => println!("Module initialization failed. Details: {}", e)
-            },
-            Ok(_) | Err(_) => {}
+        if config.is_dir() {
+            println!("Create specific config file for module (using ambassade hide)? [y/N]?");
+
+            match io::stdin().read_line(&mut input) {
+                Ok(_) if input.as_str() == "y\n" => {
+                    let dep_name = String::from(config.file_name().unwrap().to_str().unwrap());
+                    match super::dep_config::init(dep_name) {
+                        Ok(_) => {},
+                        Err(e) => println!("Module initialization failed. Details: {}", e)
+                    }
+                },
+                Ok(_) | Err(_) => {}
+            }
+        } else {
+            panic!("Path does not exist!");
         }
     }
 }
