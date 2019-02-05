@@ -175,6 +175,7 @@ pub fn help() {
     println!("");
 
     println!("help\t\t\t\tShow this message");
+    println!("version\t\t\t\tPrint version information.");
     println!("init [DIRECTORY]\t\t  Initialize new project in specified directory. Defaults to current directory.");
     println!("build [--module]\t\t  Build current project if module flag is not specified, otherwise only the module will be built.");
     println!("run [MODULES]\t\t\t  Build current project and run MODULES. MODULES default to the project module.");

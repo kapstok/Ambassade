@@ -21,6 +21,14 @@ fn parse<I>(args: &mut I, open_shell: bool) -> bool where I: Iterator<Item=Strin
             if argument == "--help" || argument == "-h" || argument == "help" {
                 backend::project::help();
             }
+            else if argument == "version" {
+                const VERSION: Option<&'static str> = option_env!("CARGO_PKG_VERSION");
+
+                match VERSION {
+                    Some(version) => println!("Ambassade version v{}", version),
+                    None => println!("Could not load version.")
+                }
+            }
             else if argument == "init" {
                 backend::project::init(args);
             }
