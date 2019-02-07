@@ -40,14 +40,14 @@ pub fn fetch(dep_name: String, mut path: PathBuf, command: String) -> Result<Str
     let command = args.remove(0);
 
     if !path.is_dir() {
-        println!("{} is not a directory. Running command from project root..", path.to_str().unwrap());
+        super::log(format!("{} is not a directory. Running command from project root..", path.to_str().unwrap()));
         match super::filesystem::get_current_project_root() {
             Some(dir) => path = dir,
             None => return Err(String::from("No valid fetch directory found!"))
         }
     }
 
-    println!("Running from {} ..", path.to_str().unwrap());
+    super::log(format!("Running from {} ..", path.to_str().unwrap()));
 
     let out = Command::new(command)
         .current_dir(&path)
@@ -113,7 +113,7 @@ fn set_command(dep: &String, build_cmd: bool) -> Option<String> {
             Some(cmd)
         },
         Err(e) => {
-            println!("{}", e);
+            super::normal(e);
             None
         }
     }

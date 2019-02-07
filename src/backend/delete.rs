@@ -26,7 +26,7 @@ fn dep_check_rec(tree: &Node) -> Result<Vec<Node>, String> {
     match super::deptree::dependency_of(&OS::current(), tree) {
         Ok(deps) => {
             for dep in deps {
-                println!("Module '{}' depends on '{}'.", &dep.name, tree.name);
+                super::log(format!("Module '{}' depends on '{}'.", &dep.name, tree.name));
                 match dep_check_rec(&dep) {
                     Ok(ref new_nodes) if new_nodes.is_empty() => nodes.push(dep.clone()),
                     Ok(new_nodes) => nodes = new_nodes,
@@ -53,7 +53,7 @@ fn dep_check(node: &Node) -> Result<(), String> {
         Err(e) => return Err(e)
     }
 
-    println!("Continue [y/N]?");
+    super::normal("Continue [y/N]?");
 
     match io::stdin().read_line(&mut input) {
         Ok(_) if input.as_str() == "y\n" => {},
@@ -82,28 +82,28 @@ fn rm_from_config(super_module: String, dep_name: String) -> Result<(), String> 
     match json["deps"]["linux"].as_object_mut() {
         Some(config) => {
             config.remove(&dep_name);
-            println!("cfg: {:#?}", config);
+            super::log(format!("cfg: {:#?}", config));
         },
-        None => { println!("Linux: dep not found."); }
+        None => { super::log("Linux: dep not found."); }
     }
 
     match json["deps"]["os-x"].as_object_mut() {
         Some(config) => {
             config.remove(&dep_name);
-            println!("cfg: {:#?}", config);
+            super::log(format!("cfg: {:#?}", config));
         },
-        None => { println!("OS-X: dep not found."); }
+        None => {  super::log("OS-X: dep not found."); }
     }
 
     match json["deps"]["windows"].as_object_mut() {
         Some(config) => {
             config.remove(&dep_name);
-            println!("cfg: {:#?}", config);
+            super::log(format!("cfg: {:#?}", config));
         },
-        None => { println!("Windows: dep not found."); }
+        None => {  super::log("Windows: dep not found."); }
     }
 
-    println!("{} config:\n{}", super_module.file_name().unwrap().to_str().unwrap(), json);
+    super::log(format!("{} config:\n{}", super_module.file_name().unwrap().to_str().unwrap(), json));
     //super::config::update(super_module, json)
     Ok(())
 }

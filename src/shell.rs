@@ -4,12 +4,14 @@ use shell::rustyline::error::ReadlineError as Error;
 use std::process::{Command, Stdio};
 use std::env;
 use parser;
+use backend;
 
 pub fn shell() {
     let mut dir = env::current_dir().unwrap();
     let mut editor = rustyline::Editor::<()>::new();
 
     loop {
+        backend::output::clear();
         let status = dir.canonicalize().unwrap();
         let mut status = String::from(status.file_name().unwrap().to_str().unwrap());
         status.push_str("> ");
@@ -29,7 +31,7 @@ pub fn shell() {
         match input.next() {
             Some("cd") => match input.next() {
                 Some(subdir) => dir.push(subdir),
-                None => println!("Missing subdirectory.")
+                None => backend::normal("Missing subdirectory.")
             },
             Some("exit") | Some("quit") => break,
             Some(cmd) => {
@@ -43,7 +45,7 @@ pub fn shell() {
                                     .output();
 
                 if outp.is_err() {
-                    println!("Could not execute command.");
+                    backend::normal("Could not execute command.");
                 }
             },
             None => continue

@@ -16,7 +16,7 @@ pub fn init(mut dep_name: String) -> Result<(), String> {
 }
 
 pub fn scan(dep_name: String) -> Result<PathBuf, String> {
-    println!("Scanning for {}..", dep_name);
+    super::log(format!("Scanning for {}..", dep_name));
 
     let mut config_path = match super::filesystem::get_dep_config_root() {
         Ok(path) => path,
@@ -34,7 +34,7 @@ pub fn scan(dep_name: String) -> Result<PathBuf, String> {
     let project_path = match super::filesystem::get_current_project_root() {
         Some(mut path) => {
             if String::from(path.file_name().unwrap().to_str().unwrap()) == dep_name {
-                println!("Project name equals dep name. Taking project's configfile...");
+                super::log("Project name equals dep name. Taking project's configfile...");
                 path.push("ambassade.json");
                 return Ok(path);
             } else {
@@ -54,7 +54,7 @@ pub fn scan(dep_name: String) -> Result<PathBuf, String> {
                     match super::config::get_json_from_dir(project_path) {
                         Ok(json) => match super::dep::check(json) {
                             Ok(result) => {
-                                println!("{}", result);
+                                super::log(format!("{}", result));
                                 return scan(dep_name);
                             },
                             Err(e) => return Err(e)

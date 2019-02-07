@@ -32,7 +32,7 @@ impl Threadhandler {
 
         match self.triggered {
             true => {
-                println!("Could not add job: {}", "Threadhandler already started.");
+                backend::log(format!("Could not add job: {}", "Threadhandler already started."));
                 false
             },
             false => {
@@ -44,7 +44,7 @@ impl Threadhandler {
 
     pub fn start(&mut self) {
         if self.triggered {
-            println!("{}", "Threadhandler already started.");
+            backend::log(format!("{}", "Threadhandler already started."));
             return
         }
 
@@ -54,14 +54,14 @@ impl Threadhandler {
 
 
         for job in self.jobs.clone() {
-            println!("Thread: {:?}", &job);
+            backend::log(format!("Thread: {:?}", &job));
             running_jobs.fetch_add(1, Ordering::Release);
             let running_jobs = Arc::clone(&running_jobs);
 
             let handle = thread::spawn(move|| {
                 match &job.0(job.1.clone(), job.2.clone(), job.3.clone()) {
-                    Ok(msg) => println!("{}", msg),
-                    Err(e) => println!("Thread {:?} paniced. Details: {}", &job, e)
+                    Ok(msg) => backend::normal(msg),
+                    Err(e) => backend::normal(format!("Thread {:?} paniced. Details: {}", &job, e))
                 }
 
                 running_jobs.fetch_sub(1, Ordering::Relaxed);
@@ -70,22 +70,22 @@ impl Threadhandler {
             handles.push(handle);
         }
 
-        println!("All scheduled jobs are running! Waiting for job to finish..");
+        backend::log("All scheduled jobs are running! Waiting for job to finish..");
 
         while running_jobs.load(Ordering::Relaxed) != 0 {
             thread::sleep(Duration::from_secs(3));
         }
 
         for handle in handles {
-            println!("Join handle..");
+            backend::log("Join handle..");
             handle.join().unwrap();
-            println!("Handle joined.");
+            backend::log("Handle joined.");
         }
     }
 }
 
 impl Drop for Threadhandler {
     fn drop(&mut self) {
-        println!("Threadhandler dropped!");
+        backend::log("Threadhandler dropped!");
     }
 }

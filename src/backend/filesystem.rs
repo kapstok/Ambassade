@@ -55,9 +55,9 @@ pub fn get_dep_root(from_dir: path::PathBuf) -> Result<path::PathBuf> {
         Some(mut path) => {
             path.push("dep");
             if !path.is_dir() {
-                println!("\tNo dep folder found. Creating folder..");
+                super::log("\tNo dep folder found. Creating folder..");
                 match fs::create_dir(path.clone()) {
-                    Ok(_) => println!("\tCreated dir {}.", path.clone().to_str().unwrap()),
+                    Ok(_) => super::log(format!("\tCreated dir {}.", path.clone().to_str().unwrap())),
                     Err(e) => return Err(e)
                 }
             }
@@ -72,9 +72,9 @@ pub fn get_dep_config_root() -> Result<path::PathBuf> {
         Some(mut path) => {
             path.push("dep_config");
             if !path.exists() {
-                println!("\t No dep_config folder found. Creating folder..");
+                super::log("\t No dep_config folder found. Creating folder..");
                 match fs::create_dir(path.clone()) {
-                    Ok(_) => println!("\tCreated dir {}.", path.clone().to_str().unwrap()),
+                    Ok(_) => super::log(format!("\tCreated dir {}.", path.clone().to_str().unwrap())),
                     Err(e) => return Err(e)
                 }
             }

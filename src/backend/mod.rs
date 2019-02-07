@@ -11,5 +11,9 @@ pub mod fetch;
 pub mod run;
 pub mod system;
 pub mod git;
+pub mod output;
 
 mod internal;
+
+pub use self::output::normal as normal;
+pub use self::output::log as log;

@@ -24,8 +24,8 @@ pub fn exe_rec(args: Vec<String>) -> Result<(), String> {
     loop {
         match to_shell(&dependency.path, args.clone()) {
             Ok(msg) => {
-                println!("{}", msg);
-                println!("Module {}: {}\n", dependency.name, "Git command successfully executed!");
+                backend::normal(msg);
+                backend::log(format!("Module {}: {}\n", dependency.name, "Git command successfully executed!"));
             },
             Err(e) => return Err(e)
         }
@@ -41,8 +41,8 @@ pub fn exe_rec(args: Vec<String>) -> Result<(), String> {
 pub fn exe(path: &PathBuf, args: Vec<String>) -> Result<(), String> {
     match to_shell(path, args) {
         Ok(msg) => {
-            println!("{}", msg);
-            println!("Git command successfully executed!");
+            backend::normal(msg);
+            backend::log("Git command successfully executed!");
             Ok(())
         },
         Err(e) => Err(e)

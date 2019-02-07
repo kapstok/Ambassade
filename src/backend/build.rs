@@ -15,12 +15,12 @@ pub fn build(dep_name: String) -> Result<String, String> {
     };
 
     match super::dep::check(config.clone()) {
-        Ok(result) => println!("{}", result),
+        Ok(result) => super::log(result),
         Err(e) => return Err(e)
     }
 
     match build_module(dep_name, config) {
-        Ok(result) => println!("{}", result),
+        Ok(result) => super::log(result),
         Err(e) => return Err(e)
     }
 
@@ -32,21 +32,21 @@ pub fn build_rec(config_file: PathBuf) -> Result<String, String> {
 
     // Inconventient, should be changed later
     match &dep_tree {
-        Ok(result) => println!("{}", result),
+        Ok(result) => super::log(result),
         Err(e) => return Err(e.to_string())
     }
 
     let dep_tree = dep_tree.unwrap();
 
     for node in &dep_tree.depends_on {
-        println!("Building module '{}'..", &node.name);
+        super::log(format!("Building module '{}'..", &node.name));
         match build_rec(node.path.clone()) {
             Ok(_) => {},
             Err(e) => return Err(e)
         }
     }
 
-    println!("Building current project '{}'..", &dep_tree.name);
+    super::log(format!("Building current project '{}'..", &dep_tree.name));
     match build(dep_tree.name) {
         Ok(result) => println!("{}", result),
         Err(e) => return Err(e)
@@ -57,7 +57,7 @@ pub fn build_rec(config_file: PathBuf) -> Result<String, String> {
 
 #[cfg(target_os="linux")]
 fn build_module(dep_name: String, config_value: serde_json::Value) -> Result<String, String> {
-    println!("Building module..");
+    super::log("Building module..");
 
     let build_cmd = &config_value["build"]["linux"];
 
@@ -70,7 +70,7 @@ fn build_module(dep_name: String, config_value: serde_json::Value) -> Result<Str
 
 #[cfg(target_os="macos")]
 fn build_module(dep_name: String, config_value: serde_json::Value) -> Result<String, String> {
-    println!("Building module..");
+    super::log("Building module..");
 
     let build_cmd = &config_value["build"]["os-x"];
 
@@ -83,7 +83,7 @@ fn build_module(dep_name: String, config_value: serde_json::Value) -> Result<Str
 
 #[cfg(target_os="windows")]
 fn build_module(dep_name: String, config_value: serde_json::Value) -> Result<String, String> {
-    println!("Building module..");
+    super::log("Building module..");
 
     let build_cmd = &config_value["build"]["windows"];
 

@@ -12,12 +12,12 @@ pub fn init<I>(args: &mut I) where I: Iterator<Item=String> {
 
     match super::git::ignore::init(&mut directory.clone()) {
         Ok(_) => {},
-        Err(e) => println!("Add 'dep' folder to .gitignore failed: {}. Continuing with project initialization..", e)
+        Err(e) => super::normal(format!("Add 'dep' folder to .gitignore failed: {}. Continuing with project initialization..", e))
     }
 
     match super::config::create(directory) {
-        Ok(_) => println!("Initialized project!"),
-        Err(e) => println!("Initializing project failed: {}", e)
+        Ok(_) => super::normal("Initialized project!"),
+        Err(e) => super::normal(format!("Initializing project failed: {}", e))
     }
 }
 
@@ -49,19 +49,19 @@ pub fn exe<I>(args: &mut I) -> Result<String, String> where I: Iterator<Item=Str
 }
 
 pub fn run(args: &mut Vec<String>) -> Result<String, String> {
-    println!("Building project..");
+    super::log("Building project..");
 
     let mut threads = super::internal::paralellism::Threadhandler::new();
 
     match build(&mut args.clone().into_iter()) {
-        Ok(output) => println!("{}", output),
+        Ok(output) => super::normal(output),
         Err(e) => return Err(e)
     }
 
     if args.len() > 1 {
         let mut modules = args.len() - 1;
         while modules > 0 {
-            println!("running async module {}: {}", modules, args[modules]);
+            super::log(format!("running async module {}: {}", modules, args[modules]));
             match super::run::run_async(args[modules].clone(), &mut threads) {
                 Ok(_) => {},
                 Err(e) => return Err(e)
@@ -73,7 +73,7 @@ pub fn run(args: &mut Vec<String>) -> Result<String, String> {
     if args.len() > 0 {
         let handler = thread::spawn(move || threads.start());
 
-        println!("running sync module 0: {}", args[0]);
+        super::log(format!("running sync module 0: {}", args[0]));
         let result = match super::run::run_sync(args[0].clone()) {
             Ok(_) => Ok(String::from("Run succeeded! Quitting..")),
             Err(e) => Err(e)
@@ -119,7 +119,7 @@ pub fn add(args: &Vec<String>) -> Result<String, String> {
     match super::filesystem::get_current_module_root() {
         Some(dir) => {
             match super::add::add(args) {
-                Ok(msg) => println!("{}", msg),
+                Ok(msg) => super::normal(msg),
                 Err(e) => return Err(e)
             }
 
@@ -136,7 +136,7 @@ pub fn add(args: &Vec<String>) -> Result<String, String> {
 
 pub fn hide(args: &Vec<String>) -> Result<String, String> {
     match add(args) {
-        Ok(msg) => println!("{}", msg),
+        Ok(msg) => super::normal(msg),
         Err(e) => return Err(e)
     }
 
@@ -146,7 +146,7 @@ pub fn hide(args: &Vec<String>) -> Result<String, String> {
     };
 
     match super::dep_config::init(dep.clone()) {
-        Ok(_) => println!("Created '{}.json' in 'dep_config' folder.", dep),
+        Ok(_) => super::normal(format!("Created '{}.json' in 'dep_config' folder.", dep)),
         Err(e) => return Err(e)
     }
 
@@ -170,18 +170,18 @@ pub fn dep_tree<I>(args: &mut I) -> Result<deptree::Node, String> where I: Itera
 }
 
 pub fn help() {
-    println!("Syntax:");
-    println!("$ ambassade [FLAG] [COMMAND [ARGUMENTS]]");
-    println!("");
+    super::normal("Syntax:");
+    super::normal("$ ambassade [FLAG] [COMMAND [ARGUMENTS]]");
+    super::normal("");
 
-    println!("help\t\t\t\tShow this message");
-    println!("version\t\t\t\tPrint version information.");
-    println!("init [DIRECTORY]\t\t  Initialize new project in specified directory. Defaults to current directory.");
-    println!("build [--module]\t\t  Build current project if module flag is not specified, otherwise only the module will be built.");
-    println!("run [MODULES]\t\t\t  Build current project and run MODULES. MODULES default to the project module.");
-    println!("exe [ARGUMENTS]\t\t\t  Run current project with ARGUMENTS. The project won't be built.");
-    println!("add NAME COMMAND [ARGUMENTS]\t  Add dependency with NAME to module and is built through COMMAND with ARGUMENTS.");
-    println!("hide NAME COMMAND [ARGUMENTS]\t  Add dependency with NAME to module and is built through COMMAND with ARGUMENTS. Overwrites configuration of dependecy if present. Otherwise, the config file will be held in the 'dep_config' directory.");
-    println!("delete PATH\t\t\t  Delete a dependency in PATH.");
-    println!("dep-tree [all|linux|os-x|windows] Print a tree of all dependencies used (indirectly) by a project for specified OS. Defaults to 'all'.");
+    super::normal("help\t\t\t\tShow this message");
+    super::normal("version\t\t\t\tPrint version information.");
+    super::normal("init [DIRECTORY]\t\t  Initialize new project in specified directory. Defaults to current directory.");
+    super::normal("build [--module]\t\t  Build current project if module flag is not specified, otherwise only the module will be built.");
+    super::normal("run [MODULES]\t\t\t  Build current project and run MODULES. MODULES default to the project module.");
+    super::normal("exe [ARGUMENTS]\t\t\t  Run current project with ARGUMENTS. The project won't be built.");
+    super::normal("add NAME COMMAND [ARGUMENTS]\t  Add dependency with NAME to module and is built through COMMAND with ARGUMENTS.");
+    super::normal("hide NAME COMMAND [ARGUMENTS]\t  Add dependency with NAME to module and is built through COMMAND with ARGUMENTS. Overwrites configuration of dependecy if present. Otherwise, the config file will be held in the 'dep_config' directory.");
+    super::normal("delete PATH\t\t\t  Delete a dependency in PATH.");
+    super::normal("dep-tree [all|linux|os-x|windows] Print a tree of all dependencies used (indirectly) by a project for specified OS. Defaults to 'all'.");
 }

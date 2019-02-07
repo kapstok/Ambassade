@@ -1,5 +1,7 @@
 extern crate ambassade_debug as dbg;
 
+use backend;
+
 pub struct DefaultSubmitMethod {}
 
 impl dbg::debug::SubmitMethod for DefaultSubmitMethod {
@@ -8,12 +10,12 @@ impl dbg::debug::SubmitMethod for DefaultSubmitMethod {
     }
 
     fn submission_succeeded(&self, info: &dbg::debug::DebugInfo) {
-        println!("");
-        println!("Please submit the information below to the repository or to a mirror:");
-        println!("https://pagure.io/Ambassade/new_issue");
-        println!("https://github.com/kapstok/Ambassade/issues/new");
-        println!("");
-        println!("");
-        println!("{}", info);
+        backend::normal("");
+        backend::normal("Please submit the information below to the repository or to a mirror:");
+        backend::normal("https://pagure.io/Ambassade/new_issue");
+        backend::normal("https://github.com/kapstok/Ambassade/issues/new");
+        backend::normal("");
+        backend::normal("");
+        backend::normal(info);
     }
 }

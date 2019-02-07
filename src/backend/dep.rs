@@ -120,7 +120,7 @@ pub fn dep(config: serde_json::Value, os: &OS) -> Result<Vec<(String, String)>, 
 
 #[cfg(target_os="linux")]
 pub fn check(config: serde_json::Value) -> Result<String, String> {
-    println!("Checking dependencies..");
+    super::log("Checking dependencies..");
 
     match dep(config, &OS::Linux) {
         Ok(ref deps) if deps.is_empty() => return Ok(String::from("No dependencies found!")),
@@ -128,7 +128,7 @@ pub fn check(config: serde_json::Value) -> Result<String, String> {
             for dep in deps.iter() {
                 let dep_clone = dep.clone();
 
-                println!("Checking for {}..\n\t{}", dep_clone.0, dep_clone.1);
+                super::log(format!("Checking for {}..\n\t{}", dep_clone.0, dep_clone.1));
 
                 match dir_check(dep_clone.0, dep_clone.1) {
                     Ok(_) => {},
@@ -143,7 +143,7 @@ pub fn check(config: serde_json::Value) -> Result<String, String> {
 
 #[cfg(target_os="macos")]
 pub fn check(config: serde_json::Value) -> Result<String, String> {
-    println!("Checking dependencies..");
+    super::log("Checking dependencies..");
 
     match dep(config, &OS::MacOs) {
         Ok(ref deps) if deps.is_empty() => return Ok(String::from("No dependencies found!")),
@@ -151,7 +151,7 @@ pub fn check(config: serde_json::Value) -> Result<String, String> {
             for dep in deps.iter() {
                 let dep_clone = dep.clone();
 
-                println!("Checking for {}..\n\t{}", dep_clone.0, dep_clone.1);
+                super::log(format!("Checking for {}..\n\t{}", dep_clone.0, dep_clone.1));
 
                 match dir_check(dep_clone.0, dep_clone.1) {
                     Ok(_) => {},
@@ -166,7 +166,7 @@ pub fn check(config: serde_json::Value) -> Result<String, String> {
 
 #[cfg(target_os="windows")]
 pub fn check(config: serde_json::Value) -> Result<String, String> {
-    println!("Checking dependencies..");
+    super::log("Checking dependencies..");
 
     match dep(config, &OS::Windows) {
         Ok(ref deps) if deps.is_empty() => return Ok(String::from("No dependencies found!")),
@@ -174,7 +174,7 @@ pub fn check(config: serde_json::Value) -> Result<String, String> {
             for dep in deps.iter() {
                 let dep_clone = dep.clone();
 
-                println!("Checking for {}..\n\t{}", dep_clone.0, dep_clone.1);
+                super::log(format!("Checking for {}..\n\t{}", dep_clone.0, dep_clone.1));
 
                 match dir_check(dep_clone.0, dep_clone.1) {
                     Ok(_) => {},

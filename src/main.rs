@@ -9,8 +9,8 @@ fn main() {
     backend::system::watch();
 
     match backend::filesystem::get_current_project_root() {
-        Some(_) => println!("You are in a project."),
-        None => println!("You are not in a project.")
+        Some(_) => backend::log("You are in a project."),
+        None => backend::log("You are not in a project.")
     }
 
     parser::parse_argv();

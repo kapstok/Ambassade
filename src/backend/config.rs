@@ -71,7 +71,7 @@ pub fn get_json(path: &PathBuf) -> Result<serde_json::Value, String> {
     match read(path) {
         Ok(config) => super::dep::json(config),
         Err(e) => {
-            println!("Error on config file: '{}'.", path.to_str().unwrap());
+            super::log(format!("Error on config file: '{}'.", path.to_str().unwrap()));
             match e.kind() {
                 ErrorKind::NotFound => Err(String::from("No config file found.")),
                 ErrorKind::PermissionDenied => Err(String::from("Config file unreadable: permission denied.")),
@@ -90,17 +90,17 @@ fn check(config: &PathBuf) {
     if !config.is_file() {
         let mut input = String::new();
 
-        println!("'{}' not found. ", config.to_str().unwrap());
+        super::log(format!("'{}' not found. ", config.to_str().unwrap()));
 
         if config.is_dir() {
-            println!("Create specific config file for module (using ambassade hide)? [y/N]?");
+            super::normal("Create specific config file for module (using ambassade hide)? [y/N]?");
 
             match io::stdin().read_line(&mut input) {
                 Ok(_) if input.as_str() == "y\n" => {
                     let dep_name = String::from(config.file_name().unwrap().to_str().unwrap());
                     match super::dep_config::init(dep_name) {
                         Ok(_) => {},
-                        Err(e) => println!("Module initialization failed. Details: {}", e)
+                        Err(e) => super::log(format!("Module initialization failed. Details: {}", e))
                     }
                 },
                 Ok(_) | Err(_) => {}

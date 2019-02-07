@@ -25,8 +25,8 @@ fn parse<I>(args: &mut I, open_shell: bool) -> bool where I: Iterator<Item=Strin
                 const VERSION: Option<&'static str> = option_env!("CARGO_PKG_VERSION");
 
                 match VERSION {
-                    Some(version) => println!("Ambassade version v{}", version),
-                    None => println!("Could not load version.")
+                    Some(version) => backend::normal(format!("Ambassade version v{}", version)),
+                    None => backend::normal("Could not load version.")
                 }
             }
             else if argument == "init" {
@@ -34,45 +34,45 @@ fn parse<I>(args: &mut I, open_shell: bool) -> bool where I: Iterator<Item=Strin
             }
             else if argument == "build" {
                 match backend::project::build(args) {
-                    Ok(result) => println!("{}", result),
-                    Err(e) => println!("Build failed: {}", e)
+                    Ok(result) => backend::log(format!("{}", result)),
+                    Err(e) => backend::log(format!("Build failed: {}", e))
                 }
             }
             else if argument == "run" {
                 match backend::project::run(&mut args.collect()) {
                     Ok(_) => {},
-                    Err(e) => println!("Running project failed: {}", e)
+                    Err(e) => backend::log(format!("Running project failed: {}", e))
                 }
             }
             else if argument == "exe" {
                 match backend::project::exe(args) {
                     Ok(_) => {},
-                    Err(e) => println!("Running project failed: {}", e)
+                    Err(e) => backend::log(format!("Running project failed: {}", e))
                 }
             }
             else if argument == "add" {
                 match backend::project::add(&args.collect()) {
-                    Ok(msg) => println!("{}", msg),
-                    Err(e) => println!("Could not add dependency: {}", e)
+                    Ok(msg) => backend::log(msg),
+                    Err(e) => backend::log(format!("Could not add dependency: {}", e))
                 }
             }
             else if argument == "hide" {
                 let args: Vec<String> = args.collect();
                 match backend::project::hide(&args) {
-                    Ok(msg) => println!("{}", msg),
-                    Err(e) => println!("Could not hide dependency: {}", e)
+                    Ok(msg) => backend::log(msg),
+                    Err(e) => backend::log(format!("Could not hide dependency: {}", e))
                 }
             }
             else if argument == "delete" {
                 match backend::project::delete(args) {
-                    Ok(module) => println!("Module '{}' deleted.", module),
-                    Err(e) => println!("Deleting module failed: {}", e)
+                    Ok(module) => backend::log(format!("Module '{}' deleted.", module)),
+                    Err(e) => backend::log(format!("Deleting module failed: {}", e))
                 }
             }
             else if argument == "dep-tree" {
                 match backend::project::dep_tree(args) {
-                    Ok(tree) => println!("{}", tree),
-                    Err(e) => println!("Could not deduce dependency tree: {}", e)
+                    Ok(tree) => backend::normal(tree),
+                    Err(e) => backend::log(format!("Could not deduce dependency tree: {}", e))
                 }
             }
             else if argument == "git" {

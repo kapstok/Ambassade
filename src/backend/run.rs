@@ -9,7 +9,7 @@ pub fn run_sync(dep_name: String) -> Result<String, String> {
         Err(e) => return Err(e)
     };
 
-    println!("Run config path: {:?}", config_path);
+    super::log(format!("Run config path: {:?}", config_path));
 
     let mut command = String::new();
     match super::config::get_json(&config_path) {
@@ -36,7 +36,7 @@ pub fn run_sync(dep_name: String) -> Result<String, String> {
         Err(e) => return Err(e)
     }
 
-    println!("Running project..");
+    super::log("Running project..");
 
     let dep_dir = match super::filesystem::get_current_project_root() {
         Some(mut path) => {
@@ -58,7 +58,7 @@ pub fn run_async(dep_name: String, threads: &mut Threadhandler) -> Result<(), St
         Err(e) => return Err(e)
     };
 
-    println!("Run config path: {:?}", config_path);
+    super::log(format!("Run config path: {:?}", config_path));
 
     let config = match super::config::get_json(&config_path) {
         Ok(json) => json,
@@ -70,7 +70,7 @@ pub fn run_async(dep_name: String, threads: &mut Threadhandler) -> Result<(), St
 
 #[cfg(target_os="linux")]
 fn run_module(dep_name: String, config_value: serde_json::Value, threads: &mut Threadhandler) -> Result<(), String> {
-    println!("Scheduling module '{}' as job..", &dep_name);
+    super::log(format!("Scheduling module '{}' as job..", &dep_name));
 
     let run_cmd = &config_value["run"]["linux"];
 
@@ -86,7 +86,7 @@ fn run_module(dep_name: String, config_value: serde_json::Value, threads: &mut T
 
 #[cfg(target_os="macos")]
 fn run_module(dep_name: String, config_value: serde_json::Value, threads: &mut Threadhandler) -> Result<(), String> {
-    println!("Scheduling module '{}' as job..", &dep_name);
+    super::log(format!("Scheduling module '{}' as job..", &dep_name));
 
     let run_cmd = &config_value["run"]["os-x"];
 
@@ -102,7 +102,7 @@ fn run_module(dep_name: String, config_value: serde_json::Value, threads: &mut T
 
 #[cfg(target_os="windows")]
 fn run_module(dep_name: String, config_value: serde_json::Value, threads: &mut Threadhandler) -> Result<(), String> {
-    println!("Scheduling module '{}' as job..", &dep_name);
+    super::log(format!("Scheduling module '{}' as job..", &dep_name));
 
     let run_cmd = &config_value["run"]["windows"];
 
