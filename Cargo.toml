@@ -9,3 +9,7 @@ rustyline = "2.1.0"
 git2 = "0.8"
 ambassade-debug = "^0"
 termcolor = "1.0"
+
+[features]
+default = []
+bold_log = []

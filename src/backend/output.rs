@@ -16,7 +16,7 @@ pub fn normal<T: ?Sized>(s: T) where T: Display + Sized {
     println!("{}", &s);
 }
 
-#[cfg(target_os="macos")]
+#[cfg(feature="bold_log")]
 pub fn log<T: ?Sized>(s: T) where T: Display + Sized {
     let string = Box::new(&s);
     let mut stdout = StandardStream::stdout(ColorChoice::Always);
@@ -24,7 +24,7 @@ pub fn log<T: ?Sized>(s: T) where T: Display + Sized {
     writeln!(&mut stdout, ":: {}", string).unwrap();
 }
 
-#[cfg(not(target_os="macos"))]
+#[cfg(not(feature="bold_log"))]
 pub fn log<T: ?Sized>(s: T) where T: Display + Sized {
     let string = Box::new(&s);
     let mut stdout = StandardStream::stdout(ColorChoice::Always);

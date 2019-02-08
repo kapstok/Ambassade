@@ -1,0 +1,12 @@
+{
+  "build": {
+    "linux": "cargo build",
+    "os-x": "cargo build --features bold_log",
+    "windows": "cargo build"
+  },
+  "run": {
+    "linux": "cargo run",
+    "os-x": "cargo run --features bold_log",
+    "windows": "cargo run"
+  }
+}
