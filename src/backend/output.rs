@@ -16,9 +16,18 @@ pub fn normal<T: ?Sized>(s: T) where T: Display + Sized {
     println!("{}", &s);
 }
 
+#[cfg(target_os="macos")]
 pub fn log<T: ?Sized>(s: T) where T: Display + Sized {
     let string = Box::new(&s);
     let mut stdout = StandardStream::stdout(ColorChoice::Always);
-    stdout.set_color(ColorSpec::new().set_fg(Some(Color::Rgb(244,185,66)))).unwrap();
+    stdout.set_color(ColorSpec::new().set_bold(true).set_fg(Some(Color::Rgb(194,135,16)))).unwrap();
+    writeln!(&mut stdout, ":: {}", string).unwrap();
+}
+
+#[cfg(not(target_os="macos"))]
+pub fn log<T: ?Sized>(s: T) where T: Display + Sized {
+    let string = Box::new(&s);
+    let mut stdout = StandardStream::stdout(ColorChoice::Always);
+    stdout.set_color(ColorSpec::new().set_fg(Some(Color::Rgb(194,135,16)))).unwrap();
     writeln!(&mut stdout, ":: {}", string).unwrap();
 }

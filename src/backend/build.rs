@@ -3,7 +3,7 @@ extern crate serde_json;
 use std::result::Result;
 use std::path::PathBuf;
 
-pub fn build(dep_name: String) -> Result<String, String> {
+pub fn build(dep_name: String) -> Result<(), String> {
     let config_path = match super::dep_config::scan(dep_name.clone()) {
         Ok(path) => path,
         Err(e) => return Err(e)
@@ -24,10 +24,11 @@ pub fn build(dep_name: String) -> Result<String, String> {
         Err(e) => return Err(e)
     }
 
-    Ok(String::from("Build succeeded!"))
+    super::log("Build succeeded!");
+    Ok(())
 }
 
-pub fn build_rec(config_file: PathBuf) -> Result<String, String> {
+pub fn build_rec(config_file: PathBuf) -> Result<(), String> {
     let dep_tree = super::deptree::print(&super::system::OS::current(), config_file);
 
     // Inconventient, should be changed later
@@ -48,11 +49,12 @@ pub fn build_rec(config_file: PathBuf) -> Result<String, String> {
 
     super::log(format!("Building current project '{}'..", &dep_tree.name));
     match build(dep_tree.name) {
-        Ok(result) => println!("{}", result),
+        Ok(_) => {},
         Err(e) => return Err(e)
     }
 
-    Ok(String::from("Project built!"))
+    super::log("Project built!");
+    Ok(())
 }
 
 #[cfg(target_os="linux")]

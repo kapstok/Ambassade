@@ -14,4 +14,6 @@ fn main() {
     }
 
     parser::parse_argv();
+    backend::output::clear();
+    // No need to flush stdout, since this is the end of the main loop.
 }

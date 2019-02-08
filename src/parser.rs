@@ -34,7 +34,7 @@ fn parse<I>(args: &mut I, open_shell: bool) -> bool where I: Iterator<Item=Strin
             }
             else if argument == "build" {
                 match backend::project::build(args) {
-                    Ok(result) => backend::log(format!("{}", result)),
+                    Ok(_) => {},
                     Err(e) => backend::log(format!("Build failed: {}", e))
                 }
             }

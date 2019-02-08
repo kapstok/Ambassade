@@ -2,7 +2,7 @@
 # It is not intended for manual editing.
 [[package]]
 name = "ambassade"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "ambassade-debug 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "git2 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",

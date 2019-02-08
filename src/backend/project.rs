@@ -21,7 +21,7 @@ pub fn init<I>(args: &mut I) where I: Iterator<Item=String> {
     }
 }
 
-pub fn build<I>(args: &mut I) -> Result<String, String> where I: Iterator<Item=String> {
+pub fn build<I>(args: &mut I) -> Result<(), String> where I: Iterator<Item=String> {
     match args.next() {
         Some(ref module) if module.as_str() == "--module" => {
             match super::filesystem::get_current_module_root() {
@@ -54,7 +54,7 @@ pub fn run(args: &mut Vec<String>) -> Result<String, String> {
     let mut threads = super::internal::paralellism::Threadhandler::new();
 
     match build(&mut args.clone().into_iter()) {
-        Ok(output) => super::normal(output),
+        Ok(_) => {},
         Err(e) => return Err(e)
     }
 

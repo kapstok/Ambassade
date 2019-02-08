@@ -11,7 +11,7 @@ pub fn shell() {
     let mut editor = rustyline::Editor::<()>::new();
 
     loop {
-        backend::output::clear();
+        backend::output::clear(); // editor.readline() flushes stdout.
         let status = dir.canonicalize().unwrap();
         let mut status = String::from(status.file_name().unwrap().to_str().unwrap());
         status.push_str("> ");

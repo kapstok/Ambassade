@@ -4,6 +4,7 @@ extern crate serde_json;
 use std::process::{Command, Stdio};
 use std::path::PathBuf;
 use std::result::Result;
+use std::io::{Write, stdout};
 
 pub fn build_from_path(dep_name: String, mut command: String, path: PathBuf) -> Result<String, String> {
     if command == String::new() {
@@ -48,6 +49,16 @@ pub fn fetch(dep_name: String, mut path: PathBuf, command: String) -> Result<Str
     }
 
     super::log(format!("Running from {} ..", path.to_str().unwrap()));
+
+    super::output::clear();
+
+    match stdout().flush() {
+        Ok(_) => {},
+        Err(e) => {
+            super::log("Could not flush stdout on fetch.rs:57.");
+            super::log(format!("Details: {}", e));
+        }
+    }
 
     let out = Command::new(command)
         .current_dir(&path)
@@ -95,6 +106,9 @@ fn set_command(dep: &String, build_cmd: bool) -> Option<String> {
         true => "No build command found. Please enter new command: ",
         false => "No run command found. Please enter new command: "
     };
+
+    super::output::clear();
+    // editor.readline() flushes stdout.
 
     let cmd = match editor.readline(msg) {
         Ok(ref input) if input == &String::new() => return None,
